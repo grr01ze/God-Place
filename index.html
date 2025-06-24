@@ -459,10 +459,11 @@
 
     // Exemple de fetch POST vers backend (à adapter selon ton serveur)
     fetch("https://bot-production-e4ec.up.railway.app/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify(payload)
     })
+
     .then(res => {
       if (!res.ok) throw new Error("Erreur réseau");
       return res.json();
