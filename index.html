@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GodPlace - Panel Discord</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <main id="app">
+    <section id="login-section" class="centered">
+      <h1>Connexion GodPlace</h1>
+      <input id="email" type="email" placeholder="Email" required autocomplete="username" />
+      <input id="password" type="password" placeholder="Mot de passe" required autocomplete="current-password" />
+      <button id="btn-login">Se connecter</button>
+      <p id="login-error" class="error"></p>
+    </section>
+
+    <section id="panel-section" hidden>
+      <header>
+        <h1>GodPlace - Panel</h1>
+        <p id="user-info"></p>
+        <button id="btn-logout">Déconnexion</button>
+      </header>
+
+      <section id="logs-section">
+        <h2>Logs des actions</h2>
+        <div id="logs-container" class="logs"></div>
+      </section>
+
+      <section id="categories-section">
+        <h2>Catégories</h2>
+        <div id="categories-container" class="categories"></div>
+      </section>
+
+      <section id="send-section" hidden>
+        <h2>Envoyer un message</h2>
+        <div id="preview-image" class="preview"></div>
+        <label for="channel-select">Choisir un salon Discord :</label>
+        <select id="channel-select"></select>
+        <div class="actions">
+          <button id="btn-back">Retour</button>
+          <button id="btn-send">Envoyer</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
