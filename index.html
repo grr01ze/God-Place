@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>G.P.P.</title>
+<title>Godplace Panel</title>
 <style>
-  /* Styles inchangés */
   * {
     margin: 0; padding: 0; box-sizing: border-box;
   }
@@ -137,8 +136,8 @@
 </section>
 
 <section class="actions">
-  <label for="channelSelect"><h2>4. Choisissez un salon Discord (si applicable)</h2></label>
-  <select id="channelSelect" aria-label="Choisir un salon Discord" style="display:none;"></select>
+  <label for="channelSelect"><h2>4. Choisissez un salon Discord</h2></label>
+  <select id="channelSelect" aria-label="Choisir un salon Discord"></select>
   
   <button id="backButton" style="display:none;">Retour</button>
   <button id="sendButton" disabled>Envoyer au bot Discord</button>
@@ -150,11 +149,7 @@
 </section>
 
 <script>
-  const fixedChannels = {
-    "grilleDeLumiere": "1378679774742056974",
-    "eclaireurs": "1378680922928320653"
-  };
-
+  // Liste complète des salons disponibles pour envoi
   const availableChannels = {
     "1378679774742056974": "Salon Grille de lumière",
     "1378680922928320653": "Salon Éclaireurs",
@@ -164,6 +159,7 @@
     "1365417832774635540": "Je préfères G2",
   };
 
+  // Toutes les catégories et leurs boutons avec liens
   const categories = {
     mondeEnDeclin: {
       "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725262414876693/FICHES_SPECIFIQUES_PETIT_FORMAT_-_4.png",
@@ -192,55 +188,54 @@
     },
     jePrefere: {
       "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726155632450067/FICHES_SPECIFIQUES_PETIT_FORMAT_-_25.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726183903265536/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215589114901/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726186419651112/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215213954079/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
     },
     jeDebats: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726250338652418/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726283172867072/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726313883936275/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726256161731111/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726287586483221/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726319492446997/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
     },
     composeTonChant: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726345386018823/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726374519505411/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726412025523506/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726354465033966/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726388596031047/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726422129317953/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
     },
     priereEnChoeur: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726445561549856/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726477503522300/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726504952314986/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726461338809428/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726495628980278/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726530771504192/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
     },
     quiSuisJeBiblique: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726536286921778/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726566499025000/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726598318859014/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726573629718522/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726607985059898/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726636813081126/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
     },
     comprendreApocalypse: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726630002579476/FICHES_SPECIFIQUES_PETIT_FORMAT_-_40.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726663403672848/FICHES_SPECIFIQUES_PETIT_FORMAT_-_41.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726700276018184/FICHES_SPECIFIQUES_PETIT_FORMAT_-_42.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726669361787410/FICHES_SPECIFIQUES_PETIT_FORMAT_-_40.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726701815379975/FICHES_SPECIFIQUES_PETIT_FORMAT_-_41.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726734167642376/FICHES_SPECIFIQUES_PETIT_FORMAT_-_42.png"
     },
     bibleIllustree: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726733322940924/FICHES_SPECIFIQUES_PETIT_FORMAT_-_43.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726763165978650/FICHES_SPECIFIQUES_PETIT_FORMAT_-_44.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726794945651970/FICHES_SPECIFIQUES_PETIT_FORMAT_-_45.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726767760802929/FICHES_SPECIFIQUES_PETIT_FORMAT_-_43.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726800011386448/FICHES_SPECIFIQUES_PETIT_FORMAT_-_44.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726830076075836/FICHES_SPECIFIQUES_PETIT_FORMAT_-_45.png"
     },
     cinemaChretien: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726824389902396/FICHES_SPECIFIQUES_PETIT_FORMAT_-_46.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726860361834760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_47.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726891917857532/FICHES_SPECIFIQUES_PETIT_FORMAT_-_48.png"
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726862015631165/FICHES_SPECIFIQUES_PETIT_FORMAT_-_46.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726894937654736/FICHES_SPECIFIQUES_PETIT_FORMAT_-_47.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726928248897043/FICHES_SPECIFIQUES_PETIT_FORMAT_-_48.png"
     },
-    jeux: {
-      "Grille de lumière": {
-        "Bouton 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726955667652608/FICHES_SPECIFIQUES_PETIT_FORMAT_-_49.png",
-        "Bouton 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726985450347310/FICHES_SPECIFIQUES_PETIT_FORMAT_-_50.png",
-        "Bouton 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727015886677760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_51.png"
-      },
-      "Éclaireurs": {
-        "Bouton 1": "https://media.discordapp.net/attachments/1365412596655853699/1365727045944965234/FICHES_SPECIFIQUES_PETIT_FORMAT_-_52.png",
-        "Bouton 2": "https://media.discordapp.net/attachments/1365412596655853699/1365727074408728320/FICHES_SPECIFIQUES_PETIT_FORMAT_-_53.png",
-        "Bouton 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727103434525440/FICHES_SPECIFIQUES_PETIT_FORMAT_-_54.png"
-      }
+    jeux: {}, // Pour gérer les sous-jeux
+    grilleDeLumiere: {
+      "G1 Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726959730902099/FICHES_SPECIFIQUES_PETIT_FORMAT_-_49.png",
+      "G1 Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726991955753967/FICHES_SPECIFIQUES_PETIT_FORMAT_-_50.png",
+      "G1 Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727024851209217/FICHES_SPECIFIQUES_PETIT_FORMAT_-_51.png"
+    },
+    eclaireurs: {
+      "Éclaireurs Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365727058495030312/FICHES_SPECIFIQUES_PETIT_FORMAT_-_52.png",
+      "Éclaireurs Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365727093065338624/FICHES_SPECIFIQUES_PETIT_FORMAT_-_53.png",
+      "Éclaireurs Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727126659562546/FICHES_SPECIFIQUES_PETIT_FORMAT_-_54.png"
     }
   };
 
@@ -248,217 +243,185 @@
   const buttonsContainer = document.getElementById("buttonsContainer");
   const previewContainer = document.getElementById("previewContainer");
   const sendButton = document.getElementById("sendButton");
-  const channelSelect = document.getElementById("channelSelect");
   const backButton = document.getElementById("backButton");
+  const channelSelect = document.getElementById("channelSelect");
   const logs = document.getElementById("logs");
 
   let selectedCategory = null;
   let selectedKey = null;
   let selectedURL = null;
-  let selectedSubGame = null;
+  let selectedChannelId = null;
 
-  // Afficher les boutons selon la catégorie choisie
+  // Initialisation : remplir le select salon
+  function populateChannelSelect() {
+    channelSelect.innerHTML = `<option value="">-- Choisissez un salon --</option>`;
+    for (const [id, name] of Object.entries(availableChannels)) {
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = name;
+      channelSelect.appendChild(option);
+    }
+    selectedChannelId = null;
+    sendButton.disabled = true;
+  }
+  populateChannelSelect();
+
+  // Quand on change de catégorie
   categorySelect.addEventListener("change", () => {
-    selectedCategory = categorySelect.value;
+    const categoryKey = categorySelect.value;
+    showButtons(categoryKey);
+    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    selectedCategory = categoryKey;
     selectedKey = null;
     selectedURL = null;
-    selectedSubGame = null;
-    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    selectedChannelId = null;
+    sendButton.disabled = true;
+  });
+
+  // Affiche les boutons selon catégorie
+  function showButtons(categoryKey) {
+    buttonsContainer.innerHTML = "";
     sendButton.disabled = true;
     backButton.style.display = "none";
-    channelSelect.style.display = "none";
-    channelSelect.innerHTML = "";
+    selectedKey = null;
+    selectedURL = null;
 
-    buttonsContainer.innerHTML = "";
+    if (!categoryKey || !categories[categoryKey]) return;
 
-    if (!selectedCategory) return;
-
-    // Gestion spéciale pour catégorie jeux
-    if (selectedCategory === "jeux") {
-      // Affiche 2 boutons pour choisir sous-jeu
-      const grilleBtn = document.createElement("button");
-      grilleBtn.textContent = "Grille de lumière";
-      grilleBtn.onclick = () => showJeuButtons("Grille de lumière");
-      buttonsContainer.appendChild(grilleBtn);
-
-      const eclaireursBtn = document.createElement("button");
-      eclaireursBtn.textContent = "Éclaireurs";
-      eclaireursBtn.onclick = () => showJeuButtons("Éclaireurs");
-      buttonsContainer.appendChild(eclaireursBtn);
-
+    if (categoryKey === "jeux") {
+      // Sous-jeux à choisir
+      buttonsContainer.innerHTML = `
+        <button class="btnSubGame" data-subgame="grilleDeLumiere">Grille de lumière</button>
+        <button class="btnSubGame" data-subgame="eclaireurs">Éclaireurs</button>
+      `;
+      Array.from(document.querySelectorAll(".btnSubGame")).forEach(btn => {
+        btn.addEventListener("click", () => {
+          showGameButtons(btn.dataset.subgame);
+        });
+      });
       return;
     }
 
-    // Sinon affichage classique des boutons
-    const items = categories[selectedCategory];
-    if (!items) return;
-
-    Object.keys(items).forEach((key) => {
+    // Sinon, liste des boutons classique
+    const elements = categories[categoryKey];
+    for (const key in elements) {
       const btn = document.createElement("button");
       btn.textContent = key;
-      btn.onclick = () => {
+      btn.dataset.url = elements[key];
+      btn.addEventListener("click", () => {
+        previewImage(btn.dataset.url);
         selectedKey = key;
-        selectedURL = items[key];
-        selectedSubGame = null;
-        previewContainer.innerHTML = `<img src="${selectedURL}" alt="${key} - ${selectedCategory}" />`;
-        sendButton.disabled = false;
-        backButton.style.display = "none";
-        channelSelect.style.display = "none";
-        channelSelect.innerHTML = "";
-      };
+        selectedURL = btn.dataset.url;
+        updateSendButtonState();
+      });
       buttonsContainer.appendChild(btn);
-    });
-  });
+    }
+  }
 
-  function showJeuButtons(subGameName) {
-    selectedSubGame = subGameName;
-    selectedKey = null;
-    selectedURL = null;
-    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-    sendButton.disabled = true;
-
+  // Affiche boutons sous-jeu
+  function showGameButtons(subgameKey) {
     buttonsContainer.innerHTML = "";
     backButton.style.display = "inline-block";
-    channelSelect.style.display = "inline-block";
+    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    selectedCategory = subgameKey;
+    selectedKey = null;
+    selectedURL = null;
+    sendButton.disabled = true;
 
-    // Remplir la sélection des salons Discord en fonction du sous-jeu
-    channelSelect.innerHTML = "";
-
-    // Pour jeux, on impose les salons fixes
-    if (subGameName === "Grille de lumière") {
-      const option = document.createElement("option");
-      option.value = fixedChannels.grilleDeLumiere;
-      option.textContent = availableChannels[fixedChannels.grilleDeLumiere] || "Salon Grille de lumière";
-      channelSelect.appendChild(option);
-      channelSelect.value = fixedChannels.grilleDeLumiere;
-      channelSelect.disabled = true;
-    } else if (subGameName === "Éclaireurs") {
-      const option = document.createElement("option");
-      option.value = fixedChannels.eclaireurs;
-      option.textContent = availableChannels[fixedChannels.eclaireurs] || "Salon Éclaireurs";
-      channelSelect.appendChild(option);
-      channelSelect.value = fixedChannels.eclaireurs;
-      channelSelect.disabled = true;
-    } else {
-      // fallback
-      channelSelect.disabled = false;
-      Object.entries(availableChannels).forEach(([id, name]) => {
-        const option = document.createElement("option");
-        option.value = id;
-        option.textContent = name;
-        channelSelect.appendChild(option);
-      });
-    }
-
-    // Afficher les boutons de l'un des deux sous-jeux
-    const jeuxItems = categories.jeux[subGameName];
-    if (!jeuxItems) return;
-
-    Object.keys(jeuxItems).forEach((key) => {
+    const elements = categories[subgameKey];
+    for (const key in elements) {
       const btn = document.createElement("button");
       btn.textContent = key;
-      btn.onclick = () => {
+      btn.dataset.url = elements[key];
+      btn.addEventListener("click", () => {
+        previewImage(btn.dataset.url);
         selectedKey = key;
-        selectedURL = jeuxItems[key];
-        previewContainer.innerHTML = `<img src="${selectedURL}" alt="${selectedSubGame} - ${key}" />`;
-        sendButton.disabled = false;
-      };
+        selectedURL = btn.dataset.url;
+        updateSendButtonState();
+      });
       buttonsContainer.appendChild(btn);
-    });
+    }
   }
 
   backButton.addEventListener("click", () => {
-    // Retour à la sélection des sous-jeux (Grille/Éclaireurs)
-    if (selectedCategory === "jeux") {
-      buttonsContainer.innerHTML = "";
-      backButton.style.display = "none";
-      sendButton.disabled = true;
+    if (selectedCategory === "grilleDeLumiere" || selectedCategory === "eclaireurs") {
+      // Retour à jeux
+      selectedCategory = "jeux";
+      showButtons("jeux");
       previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-      channelSelect.style.display = "none";
-      channelSelect.innerHTML = "";
       selectedKey = null;
       selectedURL = null;
-      selectedSubGame = null;
-
-      // Remet les 2 boutons pour sous-jeux
-      const grilleBtn = document.createElement("button");
-      grilleBtn.textContent = "Grille de lumière";
-      grilleBtn.onclick = () => showJeuButtons("Grille de lumière");
-      buttonsContainer.appendChild(grilleBtn);
-
-      const eclaireursBtn = document.createElement("button");
-      eclaireursBtn.textContent = "Éclaireurs";
-      eclaireursBtn.onclick = () => showJeuButtons("Éclaireurs");
-      buttonsContainer.appendChild(eclaireursBtn);
+      sendButton.disabled = true;
+      backButton.style.display = "none";
+    } else {
+      // Retour au select catégorie
+      categorySelect.value = "";
+      buttonsContainer.innerHTML = "";
+      previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+      sendButton.disabled = true;
+      backButton.style.display = "none";
+      selectedCategory = null;
+      selectedKey = null;
+      selectedURL = null;
     }
   });
 
+  // Gérer changement salon Discord
+  channelSelect.addEventListener("change", () => {
+    selectedChannelId = channelSelect.value || null;
+    updateSendButtonState();
+  });
+
+  // Active ou désactive le bouton envoyer
+  function updateSendButtonState() {
+    sendButton.disabled = !(selectedURL && selectedChannelId);
+  }
+
+  // Affiche l'aperçu de l'image sélectionnée
+  function previewImage(url) {
+    previewContainer.innerHTML = `<img src="${url}" alt="Aperçu de l'image sélectionnée" />`;
+  }
+
+  // Fonction d'envoi via fetch
   sendButton.addEventListener("click", () => {
-    if (!selectedURL || !selectedKey || !selectedCategory) {
-      alert("Veuillez sélectionner une image avant d'envoyer.");
-      return;
-    }
-
-    // channelId pris soit depuis le select si visible, sinon salon par défaut
-    const channelId = channelSelect.style.display !== "none" && channelSelect.value
-      ? channelSelect.value
-      : availableChannels["1325922071473295411"]; // ID salon général par défaut
-
-    // Construire le message texte envoyé au bot Discord
-    const message = `${selectedKey} (${selectedSubGame ? selectedSubGame : selectedCategory})\n${selectedURL}`;
-
-    const payload = {
-      channelId: channelId,
-      message: message
-    };
+    if (!selectedURL || !selectedChannelId) return;
 
     sendButton.disabled = true;
-    sendButton.textContent = "Envoi en cours...";
+    logs.textContent = "Envoi en cours...";
 
-    fetch("https://bot-production-e4ec.up.railway.app/send", {
+    // Préparer la charge utile
+    const payload = {
+      channelId: selectedChannelId,
+      content: selectedURL
+    };
+
+    // Exemple d'URL API à modifier selon ton backend
+    const API_URL = "https://ton-backend.example/api/sendDiscordMessage";
+
+    fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Erreur serveur: ${response.status}`);
-      }
-      return response.text();
-    })
-    .then((text) => {
-      addLog(`✔️ Envoyé : ${message}\nRéponse: ${text}`);
-    })
-    .catch((err) => {
-      addLog(`❌ Erreur lors de l'envoi : ${err.message}`);
-    })
-    .finally(() => {
-      sendButton.disabled = false;
-      sendButton.textContent = "Envoyer au bot Discord";
-    });
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Erreur serveur: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        logs.textContent = `Message envoyé avec succès dans le salon "${availableChannels[selectedChannelId]}".`;
+      })
+      .catch(err => {
+        logs.textContent = `❌ Erreur lors de l'envoi : ${err.message}`;
+      })
+      .finally(() => {
+        sendButton.disabled = false;
+      });
   });
 
-  function addLog(text) {
-    const now = new Date();
-    const time = now.toLocaleTimeString();
-    if (logs.textContent === "Aucune action pour l'instant.") {
-      logs.textContent = "";
-    }
-    logs.textContent += `[${time}] ${text}\n`;
-    logs.scrollTop = logs.scrollHeight;
-  }
-
-  // Initialisation
-  function init() {
-    sendButton.disabled = true;
-    backButton.style.display = "none";
-    channelSelect.style.display = "none";
-    previewContainer.innerHTML = "<p>Sélectionnez une catégorie pour commencer.</p>";
-  }
-
-  init();
 </script>
 
 </body>
