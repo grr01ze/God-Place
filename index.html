@@ -1,54 +1,501 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GodPlace - Panel Discord</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Godplace Discord Sender</title>
+<style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body {
+    background: white;
+    color: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  h1, h2 {
+    color: #d4af37;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  h2 {
+    font-size: 1.5rem;
+    border-bottom: 2px solid #d4af37;
+    padding-bottom: 5px;
+    margin-top: 30px;
+  }
+  select, button {
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 2px solid #d4af37;
+    background: white;
+    color: #d4af37;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+    margin: 8px 8px 8px 0;
+    min-width: 140px;
+  }
+  select:focus, button:focus {
+    outline: none;
+    background: #d4af37;
+    color: white;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .buttons-group {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+  .preview {
+    margin-top: 25px;
+    text-align: center;
+  }
+  .preview img {
+    max-width: 100%;
+    max-height: 350px;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #d4af37aa;
+  }
+  .actions {
+    margin-top: 30px;
+  }
+  .logs {
+    background-color: #fffbea;
+    border: 1.5px solid #d4af37;
+    color: #6b5e00;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 15px;
+  }
+  /* Responsive */
+  @media(max-width: 600px) {
+    .buttons-group {
+      flex-direction: column;
+    }
+    select, button {
+      min-width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+</style>
 </head>
 <body>
-  <main id="app">
-    <section id="login-section" class="centered">
-      <h1>Connexion GodPlace</h1>
-      <input id="email" type="email" placeholder="Email" required autocomplete="username" />
-      <input id="password" type="password" placeholder="Mot de passe" required autocomplete="current-password" />
-      <button id="btn-login">Se connecter</button>
-      <p id="login-error" class="error"></p>
-    </section>
 
-    <section id="panel-section" hidden>
-      <header>
-        <h1>GodPlace - Panel</h1>
-        <p id="user-info"></p>
-        <button id="btn-logout">Déconnexion</button>
-      </header>
+<h1>Godplace Discord Sender</h1>
 
-      <section id="logs-section">
-        <h2>Logs des actions</h2>
-        <div id="logs-container" class="logs"></div>
-      </section>
+<section>
+  <h2>1. Choisissez une catégorie</h2>
+  <select id="categorySelect" aria-label="Choisir une catégorie">
+    <option value="">-- Sélectionnez une catégorie --</option>
+    <option value="mondeEnDeclin">Le Monde en Déclin</option>
+    <option value="gagneCoeurChrist">Gagne le cœur du Christ</option>
+    <option value="loueAvecTonArt">Loue avec ton art</option>
+    <option value="chaineSacree">Chaîne sacrée</option>
+    <option value="savoirChretien">Savoir chrétien</option>
+    <option value="jePrefere">Je préfère</option>
+    <option value="jeDebats">Je débats</option>
+    <option value="composeTonChant">Compose ton chant</option>
+    <option value="priereEnChoeur">Prière en chœur</option>
+    <option value="quiSuisJeBiblique">Qui suis-je biblique</option>
+    <option value="comprendreApocalypse">Comprendre l'apocalypse</option>
+    <option value="bibleIllustree">LA Bible illustrée</option>
+    <option value="cinemaChretien">Cinéma Chrétien</option>
+    <option value="jeux">Jeux</option>
+  </select>
+</section>
 
-      <section id="categories-section">
-        <h2>Catégories</h2>
-        <div id="categories-container" class="categories"></div>
-      </section>
+<section>
+  <h2>2. Choisissez un élément</h2>
+  <div id="buttonsContainer" class="buttons-group"></div>
+</section>
 
-      <section id="send-section" hidden>
-        <h2>Envoyer un message</h2>
-        <div id="preview-image" class="preview"></div>
-        <label for="channel-select">Choisir un salon Discord :</label>
-        <select id="channel-select"></select>
-        <div class="actions">
-          <button id="btn-back">Retour</button>
-          <button id="btn-send">Envoyer</button>
-        </div>
-      </section>
-    </section>
-  </main>
+<section>
+  <h2>3. Aperçu</h2>
+  <div id="previewContainer" class="preview">
+    <p>Sélectionnez un élément pour voir l'aperçu ici.</p>
+  </div>
+</section>
 
-  <script src="app.js"></script>
+<section class="actions">
+  <label for="channelSelect"><h2>4. Choisissez un salon Discord (si applicable)</h2></label>
+  <select id="channelSelect" aria-label="Choisir un salon Discord" style="display:none;"></select>
+  
+  <button id="backButton" style="display:none;">Retour</button>
+  <button id="sendButton" disabled>Envoyer au bot Discord</button>
+</section>
+
+<section>
+  <h2>Logs des actions</h2>
+  <pre id="logs" class="logs">Aucune action pour l'instant.</pre>
+</section>
+
+<script>
+  // Liste des salons Discord fixes pour les deux jeux
+  const fixedChannels = {
+    "grilleDeLumiere": "1378679774742056974",
+    "eclaireurs": "1378680922928320653"
+  };
+
+  // Liste complète des salons disponibles pour envoi (hors cas fixes)
+  const availableChannels = {
+    "1378679774742056974": "Salon Grille de lumière",
+    "1378680922928320653": "Salon Éclaireurs",
+    "1378679000000000000": "Salon Général",
+    "1378679000000000001": "Salon Annonces",
+    "1378679000000000002": "Salon Discussions",
+    "1378679000000000003": "Salon Partage",
+  };
+  // (Ajoute/modifie ici la liste des salons disponibles si besoin)
+
+  // Toutes les catégories et leurs boutons avec liens
+  const categories = {
+
+    // 1 Le Monde en Déclin
+    mondeEnDeclin: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725262414876693/FICHES_SPECIFIQUES_PETIT_FORMAT_-_4.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725295369388042/FICHES_SPECIFIQUES_PETIT_FORMAT_-_5.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725348314222754/FICHES_SPECIFIQUES_PETIT_FORMAT_-_6.png",
+    },
+
+    // 2 Gagne le cœur du Christ
+    gagneCoeurChrist: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725653625864284/FICHES_SPECIFIQUES_PETIT_FORMAT_-_13.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725697045434488/FICHES_SPECIFIQUES_PETIT_FORMAT_-_14.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725725654782062/FICHES_SPECIFIQUES_PETIT_FORMAT_-_15.png"
+    },
+
+    // 3 Loue avec ton art
+    loueAvecTonArt: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725770085040218/FICHES_SPECIFIQUES_PETIT_FORMAT_-_16.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725825047068722/FICHES_SPECIFIQUES_PETIT_FORMAT_-_17.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725866457567416/FICHES_SPECIFIQUES_PETIT_FORMAT_-_18.png"
+    },
+
+    // 4 Chaîne sacrée
+    chaineSacree: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725911411851344/FICHES_SPECIFIQUES_PETIT_FORMAT_-_19.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725981528166450/FICHES_SPECIFIQUES_PETIT_FORMAT_-_20.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726016988465158/FICHES_SPECIFIQUES_PETIT_FORMAT_-_21.png"
+    },
+
+    // 5 Savoir chrétien
+    savoirChretien: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726058002784767/FICHES_SPECIFIQUES_PETIT_FORMAT_-_22.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726094986149378/FICHES_SPECIFIQUES_PETIT_FORMAT_-_23.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726124882736641/FICHES_SPECIFIQUES_PETIT_FORMAT_-_24.png"
+    },
+
+    // 6 Je préfère
+    jePrefere: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726155632450067/FICHES_SPECIFIQUES_PETIT_FORMAT_-_25.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726183903265536/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215589114901/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
+    },
+
+    // 7 Je débats
+    jeDebats: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726250338652418/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726283172867072/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726313883936275/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
+    },
+
+    // 8 Compose ton chant
+    composeTonChant: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726355068146697/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726389677329920/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726425460299271/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
+    },
+
+    // 9 Prière en chœur
+    priereEnChoeur: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726463043447552/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726496431848037/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726527528724548/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
+    },
+
+    // 10 Qui suis-je biblique
+    quiSuisJeBiblique: {
+      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726565494284288/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
+      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726594852288000/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
+      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726622425294849/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
+    },
+
+    // 11 Comprendre l'apocalypse
+    comprendreApocalypse: {
+      "S1": "https://media.discordapp.net/attachments/1365412596655853699/1365727109917708299/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
+      "S2": "https://media.discordapp.net/attachments/1365412596655853699/1365727130838634536/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png",
+      "S3": "https://media.discordapp.net/attachments/1365412596655853699/1365727158688944251/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png"
+    },
+
+    // 12 LA Bible illustrée
+    bibleIllustree: {
+      "S1": "https://media.discordapp.net/attachments/1365412596655853699/1365727440516939948/FICHES_SPECIFIQUES_GRAND_FORMAT_-_1.png",
+      "S2": "https://media.discordapp.net/attachments/1365412596655853699/1365727482401001514/FICHES_SPECIFIQUES_GRAND_FORMAT_-_2.png",
+      "S3": "https://media.discordapp.net/attachments/1365412596655853699/1365727519868846120/FICHES_SPECIFIQUES_GRAND_FORMAT_-_3.png"
+    },
+
+    // 13 Cinéma Chrétien
+    cinemaChretien: {
+      "Liste films/témoignages/podcasts": "https://media.discordapp.net/attachments/1365412596655853699/1365727574273167421/FICHES_SPECIFIQUES_GRAND_FORMAT_-_4.png"
+    },
+
+    // 14 Jeux : 2 sous-jeux "Grille de lumière" et "Éclaireurs"
+    jeux: {
+      "Grille de lumière 1": "https://media.discordapp.net/attachments/1365412596655853699/1381746959072628826/PLATEAUX_CODES_SACRES_-_3.png",
+      "Grille de lumière 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747211351883867/PLATEAUX_CODES_SACRES_-_6.png",
+      "Grille de lumière 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747610108432527/PLATEAUX_CODES_SACRES.png",
+      "Grille de lumière 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747659450355836/PLATEAUX_CODES_SACRES_-_12.png",
+      "Grille de lumière 5": "https://media.discordapp.net/attachments/1365412596655853699/1381747879051395174/PLATEAUX_CODES_SACRES.png",
+      "Grille de lumière 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748077844627617/PLATEAUX_CODES_SACRES_-_18.png",
+      "Grille de lumière 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748456841810021/PLATEAUX_CODES_SACRES.png",
+      "Grille de lumière 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748553675964709/PLATEAUX_CODES_SACRES_-_24.png",
+      "Grille de lumière 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748623842218034/PLATEAUX_CODES_SACRES_-_28.png",
+      "Grille de lumière 10": "https://media.discordapp.net/attachments/1365412596655853699/1381748876700291162/PLATEAUX_CODES_SACRES.png"
+    },
+
+    // Pour éclaireurs, on mettra la catégorie éclaireurs séparément pour choisir les images
+    eclaireurs: {
+      "Éclaireurs 1": "https://media.discordapp.net/attachments/1365412596655853699/1381747093592342528/PLATEAUX_CODES_SACRES_-_4.png",
+      "Éclaireurs 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747251466211559/PLATEAUX_CODES_SACRES_-_7.png",
+      "Éclaireurs 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747367199510549/PLATEAUX_CODES_SACRES_-_10.png",
+      "Éclaireurs 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747699107234003/PLATEAUX_CODES_SACRES_-_13.png",
+      "Éclaireurs 5": "https://media.discordapp.net/attachments/1365412596655853699/1381748030075568199/PLATEAUX_CODES_SACRES_-_16.png",
+      "Éclaireurs 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748122304249896/PLATEAUX_CODES_SACRES_-_19.png",
+      "Éclaireurs 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748505860767805/PLATEAUX_CODES_SACRES_-_22.png",
+      "Éclaireurs 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748588476104835/PLATEAUX_CODES_SACRES_-_25.png",
+      "Éclaireurs 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748653026312272/PLATEAUX_CODES_SACRES_-_27.png",
+      "Éclaireurs 10": "https://media.discordapp.net/attachments/1365412596655853699/1381749325507465226/PLATEAUX_CODES_SACRES_-_31.png",
+      "Éclaireurs 11": "https://media.discordapp.net/attachments/1365412596655853699/1381749407732469922/PLATEAUX_CODES_SACRES_-_36.png",
+      "Éclaireurs 12": "https://media.discordapp.net/attachments/1365412596655853699/1381749515937120257/PLATEAUX_CODES_SACRES_-_40.png",
+      "Éclaireurs 13": "https://media.discordapp.net/attachments/1365412596655853699/1381749593733071009/PLATEAUX_CODES_SACRES.png",
+      "Éclaireurs 14": "https://media.discordapp.net/attachments/1365412596655853699/1381749662737891459/PLATEAUX_CODES_SACRES_-_45.png"
+    }
+  };
+
+  // Initialisation DOM
+  const categorySelect = document.getElementById("categorySelect");
+  const buttonsContainer = document.getElementById("buttonsContainer");
+  const previewContainer = document.getElementById("previewContainer");
+  const channelSelect = document.getElementById("channelSelect");
+  const sendButton = document.getElementById("sendButton");
+  const backButton = document.getElementById("backButton");
+  const logs = document.getElementById("logs");
+
+  let selectedCategory = null;
+  let selectedKey = null;
+  let selectedURL = null;
+  let selectedChannelId = null;
+
+  // Fonction pour afficher les boutons selon la catégorie choisie
+  function showButtons(categoryKey) {
+    buttonsContainer.innerHTML = "";
+    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    sendButton.disabled = true;
+    backButton.style.display = "none";
+    channelSelect.style.display = "none";
+    selectedKey = null;
+    selectedURL = null;
+    selectedChannelId = null;
+    channelSelect.innerHTML = "";
+
+    if (!categoryKey || !categories[categoryKey]) return;
+
+    selectedCategory = categoryKey;
+
+    // Cas spécial pour 'jeux' : on veut proposer soit Grille de lumière soit Éclaireurs
+    if (categoryKey === "jeux") {
+      // Afficher deux gros boutons pour sous-jeux
+      buttonsContainer.innerHTML = `
+        <button class="btnSubGame" data-subgame="grilleDeLumiere">Grille de lumière</button>
+        <button class="btnSubGame" data-subgame="eclaireurs">Éclaireurs</button>
+      `;
+      Array.from(document.querySelectorAll(".btnSubGame")).forEach(btn => {
+        btn.addEventListener("click", e => {
+          showGameButtons(btn.dataset.subgame);
+        });
+      });
+      return;
+    }
+
+    // Sinon afficher tous les éléments de la catégorie
+    const elements = categories[categoryKey];
+    for (const key in elements) {
+      const btn = document.createElement("button");
+      btn.textContent = key;
+      btn.dataset.url = elements[key];
+      btn.addEventListener("click", () => {
+        previewImage(btn.dataset.url);
+        selectedKey = key;
+        selectedURL = btn.dataset.url;
+        onElementSelected();
+      });
+      buttonsContainer.appendChild(btn);
+    }
+  }
+
+  // Affiche les boutons pour un sous-jeu (grilleDeLumiere ou eclaireurs)
+  function showGameButtons(subgameKey) {
+    buttonsContainer.innerHTML = "";
+    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    sendButton.disabled = true;
+    backButton.style.display = "none";
+    selectedKey = null;
+    selectedURL = null;
+    selectedChannelId = fixedChannels[subgameKey]; // Salon fixe
+    selectedCategory = subgameKey; // pour savoir on est dans quel sous-jeu
+
+    const elements = categories[subgameKey];
+    for (const key in elements) {
+      const btn = document.createElement("button");
+      btn.textContent = key;
+      btn.dataset.url = elements[key];
+      btn.addEventListener("click", () => {
+        previewImage(btn.dataset.url);
+        selectedKey = key;
+        selectedURL = btn.dataset.url;
+        onElementSelected();
+      });
+      buttonsContainer.appendChild(btn);
+    }
+
+    // Salon fixe affiché en lecture seule
+    channelSelect.style.display = "none";
+  }
+
+  // Affiche l'image sélectionnée
+  function previewImage(url) {
+    previewContainer.innerHTML = `<img src="${url}" alt="Aperçu de l'image sélectionnée" />`;
+    backButton.style.display = "inline-block";
+    sendButton.disabled = false;
+    // Gestion salon : si on est sur grilleDeLumiere ou eclaireurs, on impose le salon fixe
+    if (selectedCategory === "grilleDeLumiere" || selectedCategory === "eclaireurs") {
+      // On affiche pas le select mais on garde le salon fixe en mémoire
+      selectedChannelId = fixedChannels[selectedCategory];
+      channelSelect.style.display = "none";
+    } else {
+      // Sinon on affiche la liste des salons dispo
+      populateChannelSelect();
+      channelSelect.style.display = "inline-block";
+      selectedChannelId = null;
+      sendButton.disabled = true; // jusqu'à ce que l'utilisateur choisisse un salon
+    }
+  }
+
+  // Quand un élément est sélectionné
+  function onElementSelected() {
+    // Si salon à choisir (hors jeux), bouton envoyer activé seulement si salon choisi
+    if (selectedCategory !== "grilleDeLumiere" && selectedCategory !== "eclaireurs") {
+      sendButton.disabled = !selectedChannelId;
+    } else {
+      sendButton.disabled = false;
+    }
+  }
+
+  // Remplit la liste déroulante des salons
+  function populateChannelSelect() {
+    channelSelect.innerHTML = `<option value="">-- Choisissez un salon --</option>`;
+    for (const [id, name] of Object.entries(availableChannels)) {
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = name;
+      channelSelect.appendChild(option);
+    }
+  }
+
+  // Gestion du choix du salon dans la liste
+  channelSelect.addEventListener("change", () => {
+    selectedChannelId = channelSelect.value || null;
+    sendButton.disabled = !selectedChannelId;
+  });
+
+  // Gestion du retour en arrière (cache l'aperçu et réaffiche boutons)
+  backButton.addEventListener("click", () => {
+    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+    sendButton.disabled = true;
+    backButton.style.display = "none";
+    if (selectedCategory === "grilleDeLumiere" || selectedCategory === "eclaireurs") {
+      // On reste sur sous-jeu avec boutons images
+      showGameButtons(selectedCategory);
+    } else if (selectedCategory) {
+      showButtons(selectedCategory);
+    }
+  });
+
+  // Envoi au bot Discord (doit être adapté côté serveur)
+  sendButton.addEventListener("click", () => {
+    if (!selectedURL || !selectedChannelId) {
+      alert("Veuillez sélectionner une image et un salon Discord valide.");
+      return;
+    }
+    sendButton.disabled = true;
+    sendButton.textContent = "Envoi en cours...";
+    log(`Envoi de l'image "${selectedKey}" vers le salon ${selectedChannelId}...`);
+
+    // Payload à envoyer
+    const payload = {
+      imageUrl: selectedURL,
+      channelId: selectedChannelId,
+      description: `${selectedKey} (${selectedCategory})`
+    };
+
+    // Exemple de fetch POST vers backend (à adapter selon ton serveur)
+    fetch("/send-to-discord", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Erreur réseau");
+      return res.json();
+    })
+    .then(data => {
+      log(`Succès : ${data.message || "Message envoyé !"}`);
+      sendButton.textContent = "Envoyer au bot Discord";
+      sendButton.disabled = false;
+    })
+    .catch(err => {
+      log(`Erreur : ${err.message}`);
+      alert("Erreur lors de l'envoi. Voir logs.");
+      sendButton.textContent = "Envoyer au bot Discord";
+      sendButton.disabled = false;
+    });
+  });
+
+  // Fonction log
+  function log(msg) {
+    const now = new Date().toLocaleTimeString();
+    if(logs.textContent === "Aucune action pour l'instant.") logs.textContent = "";
+    logs.textContent += `[${now}] ${msg}\n`;
+    logs.scrollTop = logs.scrollHeight;
+  }
+
+  // Au changement de catégorie
+  categorySelect.addEventListener("change", () => {
+    showButtons(categorySelect.value);
+  });
+
+  // Au chargement, ne rien afficher sauf choix catégorie
+  previewContainer.innerHTML = "<p>Sélectionnez une catégorie.</p>";
+</script>
+
 </body>
 </html>
