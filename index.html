@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godplace Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 24px 24px 0 24px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: white;
+            border: 1px solid #d4af37;
+        }
+
+        .btn-primary:hover {
+            background: #b8941f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+
+        .btn-outline:hover {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn-outline.active {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            margin-bottom: 24px;
+        }
+
+        .btn-large {
+            height: 80px;
+            font-size: 1rem;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Select */
+        .select {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            color: black;
+        }
+
+        .select:focus {
+            outline: none;
+            ring: 2px solid #d4af37;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-2,
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Image Preview */
+        .image-preview {
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Logs */
+        .logs {
+            background: #fffbea;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: #6b5e00;
+            white-space: pre-wrap;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        /* Badges */
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background: #d4af37;
+            color: white;
+        }
+
+        .badge-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+
+        /* Icons */
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Godplace Panel</h1>
+            <p>Panneau d'administration pour l'envoi de contenus spirituels</p>
+        </div>
+
+        <!-- Back Button -->
+        <button id="backBtn" class="btn btn-outline btn-back hidden">
+            ← Retour
+        </button>
+
+        <!-- Main Category Selection -->
+        <div id="mainView" class="card">
+            <div class="card-header">
+                <h2 class="card-title">1. Choisissez une catégorie</h2>
+                <p class="card-description">Sélectionnez la catégorie de contenu à envoyer</p>
+            </div>
+            <div class="card-content">
+                <select id="categorySelect" class="select">
+                    <option value="">-- Sélectionnez une catégorie --</option>
+                    <option value="mondeEnDeclin">Le Monde en Déclin</option>
+                    <option value="gagneCoeurChrist">Gagne le cœur du Christ</option>
+                    <option value="loueAvecTonArt">Loue avec ton art</option>
+                    <option value="chaineSacree">Chaîne sacrée</option>
+                    <option value="savoirChretien">Savoir chrétien</option>
+                    <option value="jePrefere">Je préfère</option>
+                    <option value="jeDebats">Je débats</option>
+                    <option value="composeTonChant">Compose ton chant</option>
+                    <option value="priereEnChoeur">Prière en chœur</option>
+                    <option value="quiSuisJeBiblique">Qui suis-je biblique</option>
+                    <option value="comprendreApocalypse">Comprendre l'apocalypse</option>
+                    <option value="bibleIllustree">LA Bible illustrée</option>
+                    <option value="cinemaChretien">Cinéma Chrétien</option>
+                    <option value="jeux">Jeux</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Games Selection -->
+        <div id="gamesView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">Choisissez un jeu</h2>
+                <p class="card-description">Sélectionnez le type de jeu</p>
+            </div>
+            <div class="card-content">
+                <div class="grid grid-cols-2">
+                    <button class="btn btn-outline btn-large" data-game="grilleDeLumiere">Grille de lumière</button>
+                    <button class="btn btn-outline btn-large" data-game="eclaireurs">Éclaireurs</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Week Selection -->
+        <div id="weekView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">2. Choisissez une semaine</h2>
+                <p id="weekDescription" class="card-description">Sélectionnez une semaine</p>
+            </div>
+            <div class="card-content">
+                <div id="weekButtons" class="grid grid-cols-3"></div>
+            </div>
+        </div>
+
+        <!-- Image Preview -->
+        <div id="previewView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">👁️ 3. Aperçu</h2>
+                <p class="card-description">Prévisualisation de l'image sélectionnée</p>
+            </div>
+            <div class="card-content">
+                <div class="image-preview">
+                    <img id="previewImage" src="/placeholder.svg" alt="Aperçu de l'image sélectionnée" width="400" height="400">
+                </div>
+            </div>
+        </div>
+
+        <!-- Discord Channel Selection -->
+        <div id="channelView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">4. Choisissez un salon Discord</h2>
+                <p class="card-description">Sélectionnez le salon où envoyer le contenu</p>
+            </div>
+            <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
+                <select id="channelSelect" class="select">
+                    <option value="">-- Choisissez un salon --</option>
+                    <option value="1378679774742056974">Salon Grille de lumière</option>
+                    <option value="1378680922928320653">Salon Éclaireurs</option>
+                    <option value="1325922071473295411">Salon Général</option>
+                    <option value="1378679000000000001">Salon Annonces</option>
+                    <option value="1365417738436087909">Je préfères G1</option>
+                    <option value="1365417832774635540">Je préfères G2</option>
+                </select>
+                <button id="sendBtn" class="btn btn-primary btn-full" disabled>
+                    📤 Envoyer au bot Discord
+                </button>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Logs des actions</h2>
+            </div>
+            <div class="card-content">
+                <div id="logs" class="logs">Aucune action pour l'instant.</div>
+            </div>
+        </div>
+
+        <!-- Status Badges -->
+        <div class="badges">
+            <span id="categoryBadge" class="badge badge-inactive">Catégorie: Non sélectionnée</span>
+            <span id="weekBadge" class="badge badge-inactive">Semaine: Non sélectionnée</span>
+            <span id="channelBadge" class="badge badge-inactive">Salon: Non sélectionné</span>
+        </div>
+    </div>
+
+    <script>
+        // Structure des données
+        const categories = {
+            mondeEnDeclin: {
+                title: "Le Monde en Déclin",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725262414876693/FICHES_SPECIFIQUES_PETIT_FORMAT_-_4.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725295369388042/FICHES_SPECIFIQUES_PETIT_FORMAT_-_5.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725348314222754/FICHES_SPECIFIQUES_PETIT_FORMAT_-_6.png"
+                }
+            },
+            gagneCoeurChrist: {
+                title: "Gagne le cœur du Christ",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725653625864284/FICHES_SPECIFIQUES_PETIT_FORMAT_-_13.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725697045434488/FICHES_SPECIFIQUES_PETIT_FORMAT_-_14.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725725654782062/FICHES_SPECIFIQUES_PETIT_FORMAT_-_15.png"
+                }
+            },
+            loueAvecTonArt: {
+                title: "Loue avec ton art",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725770085040218/FICHES_SPECIFIQUES_PETIT_FORMAT_-_16.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725825047068722/FICHES_SPECIFIQUES_PETIT_FORMAT_-_17.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725866457567416/FICHES_SPECIFIQUES_PETIT_FORMAT_-_18.png"
+                }
+            },
+            chaineSacree: {
+                title: "Chaîne sacrée",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725911411851344/FICHES_SPECIFIQUES_PETIT_FORMAT_-_19.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725981528166450/FICHES_SPECIFIQUES_PETIT_FORMAT_-_20.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726016988465158/FICHES_SPECIFIQUES_PETIT_FORMAT_-_21.png"
+                }
+            },
+            savoirChretien: {
+                title: "Savoir chrétien",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726058002784767/FICHES_SPECIFIQUES_PETIT_FORMAT_-_22.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726094986149378/FICHES_SPECIFIQUES_PETIT_FORMAT_-_23.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726124882736641/FICHES_SPECIFIQUES_PETIT_FORMAT_-_24.png"
+                }
+            },
+            jePrefere: {
+                title: "Je préfère",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726155632450067/FICHES_SPECIFIQUES_PETIT_FORMAT_-_25.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726183903265536/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215589114901/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
+                }
+            },
+            jeDebats: {
+                title: "Je débats",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726250338652418/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726283172867072/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726313883936275/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
+                }
+            },
+            composeTonChant: {
+                title: "Compose ton chant",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726345386018823/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726374519505411/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726412025523506/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
+                }
+            },
+            priereEnChoeur: {
+                title: "Prière en chœur",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726445561549856/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726477503522300/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726504952314986/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
+                }
+            },
+            quiSuisJeBiblique: {
+                title: "Qui suis-je biblique",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726536286921778/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726566499025000/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726598318859014/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
+                }
+            },
+            comprendreApocalypse: {
+                title: "Comprendre l'apocalypse",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726630002579476/FICHES_SPECIFIQUES_PETIT_FORMAT_-_40.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726663403672848/FICHES_SPECIFIQUES_PETIT_FORMAT_-_41.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726700276018184/FICHES_SPECIFIQUES_PETIT_FORMAT_-_42.png"
+                }
+            },
+            bibleIllustree: {
+                title: "LA Bible illustrée",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726733322940924/FICHES_SPECIFIQUES_PETIT_FORMAT_-_43.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726763165978650/FICHES_SPECIFIQUES_PETIT_FORMAT_-_44.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726794945651970/FICHES_SPECIFIQUES_PETIT_FORMAT_-_45.png"
+                }
+            },
+            cinemaChretien: {
+                title: "Cinéma Chrétien",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726824389902396/FICHES_SPECIFIQUES_PETIT_FORMAT_-_46.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726860361834760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_47.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726891917857532/FICHES_SPECIFIQUES_PETIT_FORMAT_-_48.png"
+                }
+            }
+        };
+
+        const gameCategories = {
+            grilleDeLumiere: {
+                title: "Grille de lumière",
+                buttons: {
+                    "G1 Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726955667652608/FICHES_SPECIFIQUES_PETIT_FORMAT_-_49.png",
+                    "G1 Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726985450347310/FICHES_SPECIFIQUES_PETIT_FORMAT_-_50.png",
+                    "G1 Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727015886677760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_51.png"
+                }
+            },
+            eclaireurs: {
+                title: "Éclaireurs",
+                buttons: {
+                    "Éclaireurs Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365727045944965234/FICHES_SPECIFIQUES_PETIT_FORMAT_-_52.png",
+                    "Éclaireurs Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365727074408728320/FICHES_SPECIFIQUES_PETIT_FORMAT_-_53.png",
+                    "Éclaireurs Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727103434525440/FICHES_SPECIFIQUES_PETIT_FORMAT_-_54.png"
+                }
+            }
+        };
+
+        const availableChannels = {
+            "1378679774742056974": "Salon Grille de lumière",
+            "1378680922928320653": "Salon Éclaireurs",
+            "1325922071473295411": "Salon Général",
+            "1378679000000000001": "Salon Annonces",
+            "1365417738436087909": "Je préfères G1",
+            "1365417832774635540": "Je préfères G2"
+        };
+
+        // Variables d'état
+        let currentView = 'main';
+        let selectedCategory = '';
+        let selectedGame = '';
+        let selectedWeek = '';
+        let selectedChannel = '';
+        let selectedImage = '';
+        let isLoading = false;
+
+        // Éléments DOM
+        const elements = {
+            mainView: document.getElementById('mainView'),
+            gamesView: document.getElementById('gamesView'),
+            weekView: document.getElementById('weekView'),
+            previewView: document.getElementById('previewView'),
+            channelView: document.getElementById('channelView'),
+            backBtn: document.getElementById('backBtn'),
+            categorySelect: document.getElementById('categorySelect'),
+            weekButtons: document.getElementById('weekButtons'),
+            weekDescription: document.getElementById('weekDescription'),
+            previewImage: document.getElementById('previewImage'),
+            channelSelect: document.getElementById('channelSelect'),
+            sendBtn: document.getElementById('sendBtn'),
+            logs: document.getElementById('logs'),
+            categoryBadge: document.getElementById('categoryBadge'),
+            weekBadge: document.getElementById('weekBadge'),
+            channelBadge: document.getElementById('channelBadge')
+        };
+
+        // Fonctions utilitaires
+        function hideAllViews() {
+            elements.mainView.classList.add('hidden');
+            elements.gamesView.classList.add('hidden');
+            elements.weekView.classList.add('hidden');
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+        }
+
+        function showView(viewName) {
+            hideAllViews();
+            currentView = viewName;
+            
+            if (viewName === 'main') {
+                elements.mainView.classList.remove('hidden');
+                elements.backBtn.classList.add('hidden');
+            } else if (viewName === 'games') {
+                elements.gamesView.classList.remove('hidden');
+                elements.backBtn.classList.remove('hidden');
+            } else if (viewName === 'game-detail') {
+                elements.weekView.classList.remove('hidden');
+                elements.backBtn.classList.remove('hidden');
+            }
+        }
+
+        function updateBadges() {
+            // Category badge
+            const categoryTitle = selectedCategory ? categories[selectedCategory]?.title : 
+                                 selectedGame ? gameCategories[selectedGame]?.title : 'Non sélectionnée';
+            elements.categoryBadge.textContent = `Catégorie: ${categoryTitle}`;
+            elements.categoryBadge.className = `badge ${selectedCategory || selectedGame ? 'badge-active' : 'badge-inactive'}`;
+
+            // Week badge
+            elements.weekBadge.textContent = `Semaine: ${selectedWeek || 'Non sélectionnée'}`;
+            elements.weekBadge.className = `badge ${selectedWeek ? 'badge-active' : 'badge-inactive'}`;
+
+            // Channel badge
+            const channelName = selectedChannel ? availableChannels[selectedChannel] : 'Non sélectionné';
+            elements.channelBadge.textContent = `Salon: ${channelName}`;
+            elements.channelBadge.className = `badge ${selectedChannel ? 'badge-active' : 'badge-inactive'}`;
+        }
+
+        function updateSendButton() {
+            const canSend = selectedImage && selectedChannel && !isLoading;
+            elements.sendBtn.disabled = !canSend;
+            elements.sendBtn.textContent = isLoading ? '⏳ Envoi en cours...' : '📤 Envoyer au bot Discord';
+        }
+
+        function showWeekButtons(categoryKey, isGame = false) {
+            elements.weekButtons.innerHTML = '';
+            
+            const data = isGame ? gameCategories[categoryKey]?.buttons : categories[categoryKey]?.weeks;
+            if (!data) return;
+
+            Object.keys(data).forEach(week => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-outline';
+                btn.textContent = week;
+                btn.onclick = () => selectWeek(week, data[week]);
+                elements.weekButtons.appendChild(btn);
+            });
+
+            const title = isGame ? gameCategories[categoryKey]?.title : categories[categoryKey]?.title;
+            elements.weekDescription.textContent = `Sélectionnez une semaine pour ${title}`;
+            elements.weekView.classList.remove('hidden');
+        }
+
+        function selectWeek(week, imageUrl) {
+            selectedWeek = week;
+            selectedImage = imageUrl;
+            
+            // Update week buttons
+            elements.weekButtons.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === week) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Show preview
+            elements.previewImage.src = imageUrl;
+            elements.previewView.classList.remove('hidden');
+            elements.channelView.classList.remove('hidden');
+
+            updateBadges();
+            updateSendButton();
+        }
+
+        async function sendToDiscord() {
+            if (!selectedImage || !selectedChannel) return;
+
+            isLoading = true;
+            updateSendButton();
+            elements.logs.textContent = 'Envoi en cours...';
+
+            try {
+                const payload = {
+                    channelId: selectedChannel,
+                    content: selectedImage,
+                    metadata: {
+                        category: selectedCategory || selectedGame,
+                        week: selectedWeek,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+
+                const response = await fetch('https://bot-production-e4ec.up.railway.app/api/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur serveur: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                const channelName = availableChannels[selectedChannel];
+                elements.logs.textContent = `✅ Message envoyé avec succès dans le salon "${channelName}".\nID du message: ${result.messageId || 'N/A'}`;
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                elements.logs.textContent = `❌ Erreur lors de l'envoi : ${error.message}`;
+            } finally {
+                isLoading = false;
+                updateSendButton();
+            }
+        }
+
+        // Event listeners
+        elements.categorySelect.addEventListener('change', (e) => {
+            const categoryKey = e.target.value;
+            
+            if (categoryKey === 'jeux') {
+                showView('games');
+                selectedCategory = '';
+                selectedGame = '';
+            } else if (categoryKey) {
+                selectedCategory = categoryKey;
+                selectedGame = '';
+                showWeekButtons(categoryKey, false);
+            }
+            
+            selectedWeek = '';
+            selectedImage = '';
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+            updateBadges();
+            updateSendButton();
+        });
+
+        elements.gamesView.addEventListener('click', (e) => {
+            if (e.target.dataset.game) {
+                selectedGame = e.target.dataset.game;
+                selectedCategory = '';
+                showView('game-detail');
+                showWeekButtons(selectedGame, true);
+                
+                selectedWeek = '';
+                selectedImage = '';
+                elements.previewView.classList.add('hidden');
+                elements.channelView.classList.add('hidden');
+                updateBadges();
+                updateSendButton();
+            }
+        });
+
+        elements.channelSelect.addEventListener('change', (e) => {
+            selectedChannel = e.target.value;
+            updateBadges();
+            updateSendButton();
+        });
+
+        elements.sendBtn.addEventListener('click', sendToDiscord);
+
+        elements.backBtn.addEventListener('click', () => {
+            if (currentView === 'game-detail') {
+                showView('games');
+                selectedGame = '';
+            } else if (currentView === 'games') {
+                showView('main');
+                elements.categorySelect.value = '';
+            }
+            
+            selectedWeek = '';
+            selectedImage = '';
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+            updateBadges();
+            updateSendButton();
+        });
+
+        // Initialisation
+        updateBadges();
+        updateSendButton();
+    </script>
+</body>
+</html>
