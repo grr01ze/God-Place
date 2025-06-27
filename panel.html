@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Godplace Panel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Godplace Discord Sender</h1>
+
+  <section>
+    <h2>1. Choisissez une catégorie</h2>
+    <select id="categorySelect">
+      <option value="">-- Sélectionnez une catégorie --</option>
+    </select>
+  </section>
+
+  <section>
+    <h2>2. Choisissez un élément</h2>
+    <div id="buttonsContainer" class="buttons-group"></div>
+  </section>
+
+  <section>
+    <h2>3. Aperçu</h2>
+    <div id="previewContainer" class="preview">
+      <p>Sélectionnez un élément pour voir l'aperçu ici.</p>
+    </div>
+  </section>
+
+  <section class="actions">
+    <h2>4. Choisissez un salon Discord</h2>
+    <select id="channelSelect" style="display:none;"></select>
+    <button id="backButton" style="display:none;">Retour</button>
+    <button id="sendButton" disabled>Envoyer au bot Discord</button>
+  </section>
+
+  <section>
+    <h2>Logs des actions</h2>
+    <pre id="logs" class="logs">Aucune action pour l'instant.</pre>
+  </section>
+
+  <script src="panel.js"></script>
+</body>
+</html>
