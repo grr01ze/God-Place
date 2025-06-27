@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GodPlace Panel</title>
+    <title>Godplace Panel</title>
     <style>
         * {
             margin: 0;
@@ -131,6 +131,17 @@
             width: 100%;
         }
 
+        .btn-test {
+            background: #10b981;
+            color: white;
+            border: 1px solid #10b981;
+            margin-left: 16px;
+        }
+
+        .btn-test:hover {
+            background: #059669;
+        }
+
         /* Select */
         .select {
             width: 100%;
@@ -230,14 +241,60 @@
             width: 16px;
             height: 16px;
         }
+
+        /* URL Config */
+        .url-config {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>-GodPlace Panel-</h1>
+            <h1>Godplace Panel</h1>
             <p>Panneau d'administration pour l'envoi de contenus spirituels</p>
+            
+            <!-- Test de connexion -->
+            <div style="margin-top: 16px;">
+                <button id="testBtn" class="btn btn-test">🔧 Tester la connexion</button>
+            </div>
+        </div>
+
+        <!-- Configuration URL -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚙️ Configuration du serveur</h2>
+                <p class="card-description">Configurez l'URL de votre serveur bot</p>
+            </div>
+            <div class="card-content">
+                <div class="url-config">
+                    <label for="serverUrl" style="display: block; margin-bottom: 8px; font-weight: 500;">URL du serveur :</label>
+                    <input 
+                        type="text" 
+                        id="serverUrl" 
+                        class="url-input" 
+                        value="https://bot-production-e4ec.up.railway.app"
+                        placeholder="https://votre-serveur.railway.app"
+                    >
+                    <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280;">
+                        ⚠️ Assurez-vous que votre serveur a les endpoints <code>/api/health</code> et <code>/api/send-message</code>
+                    </p>
+                </div>
+            </div>
         </div>
 
         <!-- Back Button -->
@@ -351,7 +408,7 @@
     </div>
 
     <script>
-        // Structure des données
+        // Structure des données (même que précédemment)
         const categories = {
             mondeEnDeclin: {
                 title: "Le Monde en Déclin",
@@ -510,13 +567,57 @@
             previewImage: document.getElementById('previewImage'),
             channelSelect: document.getElementById('channelSelect'),
             sendBtn: document.getElementById('sendBtn'),
+            testBtn: document.getElementById('testBtn'),
+            serverUrl: document.getElementById('serverUrl'),
             logs: document.getElementById('logs'),
             categoryBadge: document.getElementById('categoryBadge'),
             weekBadge: document.getElementById('weekBadge'),
             channelBadge: document.getElementById('channelBadge')
         };
 
-        // Fonctions utilitaires
+        // Fonction pour obtenir l'URL du serveur
+        function getServerUrl() {
+            return elements.serverUrl.value.trim().replace(/\/$/, ''); // Enlève le slash final
+        }
+
+        // Fonction de test de connexion
+        async function testConnection() {
+            const serverUrl = getServerUrl();
+            if (!serverUrl) {
+                elements.logs.textContent = '❌ Veuillez entrer une URL de serveur';
+                return;
+            }
+
+            elements.testBtn.disabled = true;
+            elements.testBtn.textContent = '🔄 Test en cours...';
+            elements.logs.textContent = `Test de connexion vers ${serverUrl}...`;
+
+            try {
+                // Test de l'endpoint health
+                const healthResponse = await fetch(`${serverUrl}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!healthResponse.ok) {
+                    throw new Error(`Endpoint /api/health non trouvé (${healthResponse.status})`);
+                }
+
+                const healthData = await healthResponse.json();
+                elements.logs.textContent = `✅ Connexion réussie !\n\nStatut: ${healthData.status}\nBot: ${healthData.bot}\nServeurs: ${healthData.guilds || 'N/A'}\nTimestamp: ${healthData.timestamp}`;
+
+            } catch (error) {
+                console.error('Erreur de test:', error);
+                elements.logs.textContent = `❌ Erreur de connexion :\n${error.message}\n\nVérifiez :\n• L'URL du serveur\n• Que le serveur est en ligne\n• Que l'endpoint /api/health existe`;
+            } finally {
+                elements.testBtn.disabled = false;
+                elements.testBtn.textContent = '🔧 Tester la connexion';
+            }
+        }
+
+        // Fonctions utilitaires (même que précédemment)
         function hideAllViews() {
             elements.mainView.classList.add('hidden');
             elements.gamesView.classList.add('hidden');
@@ -542,17 +643,14 @@
         }
 
         function updateBadges() {
-            // Category badge
             const categoryTitle = selectedCategory ? categories[selectedCategory]?.title : 
                                  selectedGame ? gameCategories[selectedGame]?.title : 'Non sélectionnée';
             elements.categoryBadge.textContent = `Catégorie: ${categoryTitle}`;
             elements.categoryBadge.className = `badge ${selectedCategory || selectedGame ? 'badge-active' : 'badge-inactive'}`;
 
-            // Week badge
             elements.weekBadge.textContent = `Semaine: ${selectedWeek || 'Non sélectionnée'}`;
             elements.weekBadge.className = `badge ${selectedWeek ? 'badge-active' : 'badge-inactive'}`;
 
-            // Channel badge
             const channelName = selectedChannel ? availableChannels[selectedChannel] : 'Non sélectionné';
             elements.channelBadge.textContent = `Salon: ${channelName}`;
             elements.channelBadge.className = `badge ${selectedChannel ? 'badge-active' : 'badge-inactive'}`;
@@ -587,7 +685,6 @@
             selectedWeek = week;
             selectedImage = imageUrl;
             
-            // Update week buttons
             elements.weekButtons.querySelectorAll('button').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.textContent === week) {
@@ -595,7 +692,6 @@
                 }
             });
 
-            // Show preview
             elements.previewImage.src = imageUrl;
             elements.previewView.classList.remove('hidden');
             elements.channelView.classList.remove('hidden');
@@ -606,6 +702,12 @@
 
         async function sendToDiscord() {
             if (!selectedImage || !selectedChannel) return;
+
+            const serverUrl = getServerUrl();
+            if (!serverUrl) {
+                elements.logs.textContent = '❌ Veuillez configurer l\'URL du serveur';
+                return;
+            }
 
             isLoading = true;
             updateSendButton();
@@ -622,7 +724,10 @@
                     }
                 };
 
-                const response = await fetch('https://bot-production-e4ec.up.railway.app', {
+                console.log('Envoi vers:', `${serverUrl}/api/send-message`);
+                console.log('Payload:', payload);
+
+                const response = await fetch(`${serverUrl}/api/send-message`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -641,7 +746,15 @@
 
             } catch (error) {
                 console.error('Erreur:', error);
-                elements.logs.textContent = `❌ Erreur lors de l'envoi : ${error.message}`;
+                
+                let errorMessage = error.message;
+                if (error.message.includes('404')) {
+                    errorMessage = `❌ Endpoint non trouvé.\n\nVérifiez que votre serveur a bien l'endpoint:\n${serverUrl}/api/send-message\n\nErreur: ${error.message}`;
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = `❌ Impossible de contacter le serveur.\n\nVérifiez :\n• L'URL du serveur\n• Que le serveur est en ligne\n• Les paramètres CORS\n\nErreur: ${error.message}`;
+                }
+                
+                elements.logs.textContent = errorMessage;
             } finally {
                 isLoading = false;
                 updateSendButton();
@@ -649,6 +762,8 @@
         }
 
         // Event listeners
+        elements.testBtn.addEventListener('click', testConnection);
+
         elements.categorySelect.addEventListener('change', (e) => {
             const categoryKey = e.target.value;
             
