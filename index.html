@@ -2,12 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Godplace - Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Godplace Panel</title>
   <style>
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: white;
       color: #000;
@@ -17,21 +15,23 @@
       display: flex;
       flex-direction: column;
     }
-    h2, h3 {
+    h1, h2 {
       color: #d4af37;
       font-weight: bold;
       margin-bottom: 15px;
     }
-    h2 {
-      font-size: 2rem;
+    h1 {
+      font-size: 2.5rem;
       text-align: center;
       margin-bottom: 30px;
     }
-    h3 {
-      font-size: 1.2rem;
-      margin-top: 25px;
+    h2 {
+      font-size: 1.5rem;
+      border-bottom: 2px solid #d4af37;
+      padding-bottom: 5px;
+      margin-top: 30px;
     }
-    input, button {
+    select, button {
       font-size: 1rem;
       padding: 10px 15px;
       border-radius: 6px;
@@ -44,12 +44,8 @@
       margin: 8px 8px 8px 0;
       min-width: 140px;
     }
-    input[type=email], input[type=password], input[type=text] {
-      width: 100%;
-      border: 2px solid #ccc;
-      color: #000;
-    }
-    button:hover {
+    select:focus, button:focus {
+      outline: none;
       background: #d4af37;
       color: white;
     }
@@ -57,86 +53,176 @@
       opacity: 0.5;
       cursor: default;
     }
-    #authContainer {
-      max-width: 800px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 25px;
+    .buttons-group {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .preview {
+      margin-top: 25px;
+      text-align: center;
+    }
+    .preview img {
+      max-width: 100%;
+      max-height: 350px;
+      border: 2px solid #d4af37;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 0 10px #d4af37aa;
+    }
+    .actions {
+      margin-top: 30px;
+    }
+    .logs {
+      background-color: #fffbea;
+      border: 1.5px solid #d4af37;
+      color: #6b5e00;
+      padding: 12px 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 15px;
     }
     @media(max-width: 600px) {
-      input, button {
-        width: 100%;
-        margin: 8px 0;
+      .buttons-group {
+        flex-direction: column;
+      }
+      select, button {
+        min-width: 100%;
+        margin-bottom: 10px;
       }
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 </head>
 <body>
-<div id="authContainer">
-  <h2>Connexion</h2>
-  <input type="email" id="email" placeholder="Email" required><br>
-  <input type="password" id="password" placeholder="Mot de passe" required><br>
-  <input type="text" id="pseudoDiscord" placeholder="Pseudo Discord (ex: User1234)" required><br>
-  <button onclick="register()">Créer un compte</button>
-  <button onclick="login()">Se connecter</button>
-  <p id="authError" style="color:red;"></p>
-</div>
+  <h1>Godplace Discord Sender</h1>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDuY1T6HaxfDbEcZZYOrpDcD5LPNUTmeUc",
-  authDomain: "godplace-dea67.firebaseapp.com",
-  projectId: "godplace-dea67",
-  storageBucket: "godplace-dea67.appspot.com",
-  messagingSenderId: "774010087004",
-  appId: "1:774010087004:web:31346dfbc1b2adfed2e899"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+  <section>
+    <h2>1. Choisissez une catégorie</h2>
+    <select id="categorySelect">
+      <option value="">-- Sélectionnez une catégorie --</option>
+      <option value="grille">Grille de lumière</option>
+      <option value="eclaireurs">Éclaireurs</option>
+    </select>
+  </section>
 
-function isValidDiscordTag(tag) {
-  return /^[\w\s]{2,32}$/.test(tag);
-}
+  <section>
+    <h2>2. Choisissez un élément</h2>
+    <div id="buttonsContainer" class="buttons-group"></div>
+  </section>
 
-function showError(msg) {
-  document.getElementById("authError").textContent = msg;
-}
+  <section>
+    <h2>3. Aperçu</h2>
+    <div id="previewContainer" class="preview">
+      <p>Sélectionnez un élément pour voir l'aperçu ici.</p>
+    </div>
+  </section>
 
-async function register() {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  const pseudo = pseudoInput.value;
-  if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide");
-  try {
-    const { user } = await auth.createUserWithEmailAndPassword(email, password);
-    await user.updateProfile({ displayName: pseudo });
-    window.location.href = "panel.html";
-  } catch (err) {
-    showError(err.message);
-  }
-}
+  <section class="actions">
+    <button id="backButton" style="display:none;">Retour</button>
+    <button id="sendButton" disabled>Envoyer au bot Discord</button>
+  </section>
 
-async function login() {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  const pseudo = pseudoInput.value;
-  if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide");
-  try {
-    const { user } = await auth.signInWithEmailAndPassword(email, password);
-    if (user.displayName !== pseudo) await user.updateProfile({ displayName: pseudo });
-    window.location.href = "panel.html";
-  } catch (err) {
-    showError(err.message);
-  }
-}
+  <section>
+    <h2>Logs des actions</h2>
+    <pre id="logs" class="logs">Aucune action pour l'instant.</pre>
+  </section>
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const pseudoInput = document.getElementById("pseudoDiscord");
-</script>
+  <script>
+    const fixedChannels = {
+      grille: "1378679774742056974",
+      eclaireurs: "1378680922928320653"
+    };
+
+    const images = {
+      grille: [
+        "https://media.discordapp.net/attachments/1365412596655853699/1381746959072628826/PLATEAUX_CODES_SACRES_-_3.png",
+        "https://media.discordapp.net/attachments/1365412596655853699/1381747211351883867/PLATEAUX_CODES_SACRES_-_6.png"
+      ],
+      eclaireurs: [
+        "https://media.discordapp.net/attachments/1365412596655853699/1381747093592342528/PLATEAUX_CODES_SACRES_-_4.png",
+        "https://media.discordapp.net/attachments/1365412596655853699/1381747251466211559/PLATEAUX_CODES_SACRES_-_7.png"
+      ]
+    };
+
+    const categorySelect = document.getElementById("categorySelect");
+    const buttonsContainer = document.getElementById("buttonsContainer");
+    const previewContainer = document.getElementById("previewContainer");
+    const sendButton = document.getElementById("sendButton");
+    const backButton = document.getElementById("backButton");
+    const logs = document.getElementById("logs");
+
+    let selectedURL = null;
+    let selectedCategory = null;
+
+    categorySelect.addEventListener("change", () => {
+      selectedCategory = categorySelect.value;
+      showButtons(selectedCategory);
+    });
+
+    function showButtons(cat) {
+      buttonsContainer.innerHTML = "";
+      previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
+      sendButton.disabled = true;
+      backButton.style.display = "none";
+      selectedURL = null;
+      if (!images[cat]) return;
+      images[cat].forEach((url, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = `Élément ${idx + 1}`;
+        btn.addEventListener("click", () => {
+          previewImage(url);
+          selectedURL = url;
+          sendButton.disabled = false;
+        });
+        buttonsContainer.appendChild(btn);
+      });
+    }
+
+    function previewImage(url) {
+      previewContainer.innerHTML = `<img src="${url}" alt="Aperçu">`;
+      backButton.style.display = "inline-block";
+    }
+
+    backButton.addEventListener("click", () => {
+      showButtons(selectedCategory);
+    });
+
+    sendButton.addEventListener("click", () => {
+      if (!selectedURL || !selectedCategory) return;
+      const payload = {
+        imageUrl: selectedURL,
+        channelId: fixedChannels[selectedCategory],
+        description: `${selectedCategory}`
+      };
+      log(`Envoi de ${selectedURL} vers ${payload.channelId}`);
+      sendButton.disabled = true;
+      sendButton.textContent = "Envoi...";
+      fetch("http://localhost:3000/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        log("Succès : " + data.message);
+        sendButton.textContent = "Envoyer au bot Discord";
+        sendButton.disabled = false;
+      })
+      .catch(err => {
+        log("Erreur : " + err.message);
+        sendButton.textContent = "Envoyer au bot Discord";
+        sendButton.disabled = false;
+      });
+    });
+
+    function log(msg) {
+      const now = new Date().toLocaleTimeString();
+      if (logs.textContent.includes("Aucune action")) logs.textContent = "";
+      logs.textContent += `[${now}] ${msg}\n`;
+      logs.scrollTop = logs.scrollHeight;
+    }
+  </script>
 </body>
 </html>
