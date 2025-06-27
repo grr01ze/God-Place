@@ -20,7 +20,7 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, button {
+    input, button, select {
       padding: 10px;
       margin: 8px 0;
       width: 100%;
@@ -49,7 +49,23 @@
 <div id="panelContainer" style="display:none;">
   <h2>Bienvenue sur le panel GodPlace</h2>
   <p id="userInfo"></p>
-  <!-- 🔧 Ici tu peux coller ton panel complet -->
+
+  <label for="categorySelect">Choisir une catégorie :</label>
+  <select id="categorySelect">
+    <option value="https://cdn.discordapp.com/attachments/1378679774742056974/1/image1.png">Le monde en déclin</option>
+    <option value="https://cdn.discordapp.com/attachments/1378679774742056974/2/image2.png">Gagne le cœur du Christ</option>
+    <option value="https://cdn.discordapp.com/attachments/1378680922928320653/3/image3.png">Loue avec ton art</option>
+    <option value="https://cdn.discordapp.com/attachments/1378680922928320653/4/image4.png">Chaîne sacrée</option>
+  </select>
+
+  <label for="channelSelect">Choisir un salon :</label>
+  <select id="channelSelect">
+    <option value="1378679774742056974">Grille de lumière</option>
+    <option value="1378680922928320653">Éclaireurs</option>
+  </select>
+
+  <button onclick="sendImage()">📤 Envoyer</button>
+  <p id="sendStatus"></p>
 </div>
 
 <script>
@@ -62,7 +78,6 @@
     appId: "1:774010087004:web:31346dfbc1b2adfed2e899",
     measurementId: "G-HNXY5FDSZK"
   };
-
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
@@ -126,6 +141,26 @@
       showPanel(user);
     }
   });
+
+  async function sendImage() {
+    const channelId = document.getElementById("channelSelect").value;
+    const imageUrl = document.getElementById("categorySelect").value;
+
+    try {
+      const res = await fetch("https://bot-production-e4ec.up.railway.app/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ channelId, imageUrl })
+      });
+
+      const result = await res.text();
+      document.getElementById("sendStatus").textContent = res.ok ? "✅ Envoyé !" : `❌ Erreur : ${result}`;
+    } catch (err) {
+      document.getElementById("sendStatus").textContent = `❌ Erreur de connexion : ${err.message}`;
+    }
+  }
 </script>
 
 </body>
