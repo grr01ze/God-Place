@@ -1,427 +1,123 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Godplace Panel</title>
-<style>
-  * {
-    margin: 0; padding: 0; box-sizing: border-box;
-  }
-  body {
-    background: white;
-    color: #000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  h1, h2 {
-    color: #d4af37;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-  h1 {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  h2 {
-    font-size: 1.5rem;
-    border-bottom: 2px solid #d4af37;
-    padding-bottom: 5px;
-    margin-top: 30px;
-  }
-  select, button {
-    font-size: 1rem;
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: 2px solid #d4af37;
-    background: white;
-    color: #d4af37;
-    cursor: pointer;
-    font-weight: 600;
-    user-select: none;
-    margin: 8px 8px 8px 0;
-    min-width: 140px;
-  }
-  select:focus, button:focus {
-    outline: none;
-    background: #d4af37;
-    color: white;
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-  .buttons-group {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 15px;
-  }
-  .preview {
-    margin-top: 25px;
-    text-align: center;
-  }
-  .preview img {
-    max-width: 100%;
-    max-height: 350px;
-    border: 2px solid #d4af37;
-    border-radius: 8px;
-    box-shadow: 0 0 10px #d4af37aa;
-  }
-  .actions {
-    margin-top: 30px;
-  }
-  .logs {
-    background-color: #fffbea;
-    border: 1.5px solid #d4af37;
-    color: #6b5e00;
-    padding: 12px 15px;
-    border-radius: 6px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    max-height: 150px;
-    overflow-y: auto;
-    margin-top: 15px;
-  }
-  /* Responsive */
-  @media(max-width: 600px) {
-    .buttons-group {
-      flex-direction: column;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Godplace - Connexion</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
     }
-    select, button {
-      min-width: 100%;
-      margin-bottom: 10px;
+    #authContainer, #panelContainer {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-  }
-</style>
+    input, button {
+      padding: 10px;
+      margin: 8px 0;
+      width: 100%;
+      font-size: 16px;
+    }
+    h2 {
+      text-align: center;
+      color: #d4af37;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Godplace Panel</h1>
+<!-- 🔐 Connexion / inscription -->
+<div id="authContainer">
+  <h2>Connexion GodPlace</h2>
+  <input type="email" id="email" placeholder="Email" required><br>
+  <input type="password" id="password" placeholder="Mot de passe" required><br>
+  <input type="text" id="pseudoDiscord" placeholder="Pseudo Discord (ex: User#1234)" required><br>
+  <button onclick="register()">Créer un compte</button>
+  <button onclick="login()">Se connecter</button>
+  <p id="authError" style="color:red;"></p>
+</div>
 
-<section>
-  <h2>1. Choisissez une catégorie</h2>
-  <select id="categorySelect" aria-label="Choisir une catégorie">
-    <option value="">-- Sélectionnez une catégorie --</option>
-    <option value="mondeEnDeclin">Le Monde en Déclin</option>
-    <option value="gagneCoeurChrist">Gagne le cœur du Christ</option>
-    <option value="loueAvecTonArt">Loue avec ton art</option>
-    <option value="chaineSacree">Chaîne sacrée</option>
-    <option value="savoirChretien">Savoir chrétien</option>
-    <option value="jePrefere">Je préfère</option>
-    <option value="jeDebats">Je débats</option>
-    <option value="composeTonChant">Compose ton chant</option>
-    <option value="priereEnChoeur">Prière en chœur</option>
-    <option value="quiSuisJeBiblique">Qui suis-je biblique</option>
-    <option value="comprendreApocalypse">Comprendre l'apocalypse</option>
-    <option value="bibleIllustree">LA Bible illustrée</option>
-    <option value="cinemaChretien">Cinéma Chrétien</option>
-    <option value="jeux">Jeux</option>
-  </select>
-</section>
-
-<section>
-  <h2>2. Choisissez un élément</h2>
-  <div id="buttonsContainer" class="buttons-group"></div>
-</section>
-
-<section>
-  <h2>3. Aperçu</h2>
-  <div id="previewContainer" class="preview">
-    <p>Sélectionnez un élément pour voir l'aperçu ici.</p>
-  </div>
-</section>
-
-<section class="actions">
-  <label for="channelSelect"><h2>4. Choisissez un salon Discord</h2></label>
-  <select id="channelSelect" aria-label="Choisir un salon Discord"></select>
-  
-  <button id="backButton" style="display:none;">Retour</button>
-  <button id="sendButton" disabled>Envoyer au bot Discord</button>
-</section>
-
-<section>
-  <h2>Logs des actions</h2>
-  <pre id="logs" class="logs">Aucune action pour l'instant.</pre>
-</section>
+<!-- ✅ Panel principal (caché tant qu'on n'est pas connecté) -->
+<div id="panelContainer" style="display:none;">
+  <h2>Bienvenue sur le panel GodPlace</h2>
+  <p>Panel ici...</p>
+  <!-- 🔧 Ton panel complet sera ici (copie/colle le code HTML de ton panel dans ce div) -->
+</div>
 
 <script>
-  // Liste complète des salons disponibles pour envoi
-  const availableChannels = {
-    "1378679774742056974": "Salon Grille de lumière",
-    "1378680922928320653": "Salon Éclaireurs",
-    "1325922071473295411": "Salon Général",
-    "1378679000000000001": "Salon Annonces",
-    "1365417738436087909": "Je préfères G1",
-    "1365417832774635540": "Je préfères G2",
+  const firebaseConfig = {
+    apiKey: "TA_CLE_API",
+    authDomain: "ton-projet.firebaseapp.com",
+    projectId: "ton-projet-id",
+    appId: "ton-app-id"
   };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-  // Toutes les catégories et leurs boutons avec liens
-  const categories = {
-    mondeEnDeclin: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725262414876693/FICHES_SPECIFIQUES_PETIT_FORMAT_-_4.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725295369388042/FICHES_SPECIFIQUES_PETIT_FORMAT_-_5.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725348314222754/FICHES_SPECIFIQUES_PETIT_FORMAT_-_6.png",
-    },
-    gagneCoeurChrist: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725653625864284/FICHES_SPECIFIQUES_PETIT_FORMAT_-_13.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725697045434488/FICHES_SPECIFIQUES_PETIT_FORMAT_-_14.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725725654782062/FICHES_SPECIFIQUES_PETIT_FORMAT_-_15.png"
-    },
-    loueAvecTonArt: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725770085040218/FICHES_SPECIFIQUES_PETIT_FORMAT_-_16.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725825047068722/FICHES_SPECIFIQUES_PETIT_FORMAT_-_17.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725866457567416/FICHES_SPECIFIQUES_PETIT_FORMAT_-_18.png"
-    },
-    chaineSacree: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725911411851344/FICHES_SPECIFIQUES_PETIT_FORMAT_-_19.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725981528166450/FICHES_SPECIFIQUES_PETIT_FORMAT_-_20.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726016988465158/FICHES_SPECIFIQUES_PETIT_FORMAT_-_21.png"
-    },
-    savoirChretien: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726058002784767/FICHES_SPECIFIQUES_PETIT_FORMAT_-_22.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726094986149378/FICHES_SPECIFIQUES_PETIT_FORMAT_-_23.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726124882736641/FICHES_SPECIFIQUES_PETIT_FORMAT_-_24.png"
-    },
-    jePrefere: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726155632450067/FICHES_SPECIFIQUES_PETIT_FORMAT_-_25.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726186419651112/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215213954079/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
-    },
-    jeDebats: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726256161731111/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726287586483221/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726319492446997/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
-    },
-    composeTonChant: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726354465033966/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726388596031047/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726422129317953/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
-    },
-    priereEnChoeur: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726461338809428/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726495628980278/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726530771504192/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
-    },
-    quiSuisJeBiblique: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726573629718522/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726607985059898/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726636813081126/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
-    },
-    comprendreApocalypse: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726669361787410/FICHES_SPECIFIQUES_PETIT_FORMAT_-_40.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726701815379975/FICHES_SPECIFIQUES_PETIT_FORMAT_-_41.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726734167642376/FICHES_SPECIFIQUES_PETIT_FORMAT_-_42.png"
-    },
-    bibleIllustree: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726767760802929/FICHES_SPECIFIQUES_PETIT_FORMAT_-_43.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726800011386448/FICHES_SPECIFIQUES_PETIT_FORMAT_-_44.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726830076075836/FICHES_SPECIFIQUES_PETIT_FORMAT_-_45.png"
-    },
-    cinemaChretien: {
-      "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726862015631165/FICHES_SPECIFIQUES_PETIT_FORMAT_-_46.png",
-      "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726894937654736/FICHES_SPECIFIQUES_PETIT_FORMAT_-_47.png",
-      "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726928248897043/FICHES_SPECIFIQUES_PETIT_FORMAT_-_48.png"
-    },
-    jeux: {}, // Pour gérer les sous-jeux
-    grilleDeLumiere: {
-      "G1 Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726959730902099/FICHES_SPECIFIQUES_PETIT_FORMAT_-_49.png",
-      "G1 Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726991955753967/FICHES_SPECIFIQUES_PETIT_FORMAT_-_50.png",
-      "G1 Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727024851209217/FICHES_SPECIFIQUES_PETIT_FORMAT_-_51.png"
-    },
-    eclaireurs: {
-      "Éclaireurs Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365727058495030312/FICHES_SPECIFIQUES_PETIT_FORMAT_-_52.png",
-      "Éclaireurs Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365727093065338624/FICHES_SPECIFIQUES_PETIT_FORMAT_-_53.png",
-      "Éclaireurs Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727126659562546/FICHES_SPECIFIQUES_PETIT_FORMAT_-_54.png"
-    }
-  };
-
-  const categorySelect = document.getElementById("categorySelect");
-  const buttonsContainer = document.getElementById("buttonsContainer");
-  const previewContainer = document.getElementById("previewContainer");
-  const sendButton = document.getElementById("sendButton");
-  const backButton = document.getElementById("backButton");
-  const channelSelect = document.getElementById("channelSelect");
-  const logs = document.getElementById("logs");
-
-  let selectedCategory = null;
-  let selectedKey = null;
-  let selectedURL = null;
-  let selectedChannelId = null;
-
-  // Initialisation : remplir le select salon
-  function populateChannelSelect() {
-    channelSelect.innerHTML = `<option value="">-- Choisissez un salon --</option>`;
-    for (const [id, name] of Object.entries(availableChannels)) {
-      const option = document.createElement("option");
-      option.value = id;
-      option.textContent = name;
-      channelSelect.appendChild(option);
-    }
-    selectedChannelId = null;
-    sendButton.disabled = true;
+  function isValidDiscordTag(tag) {
+    return /^.{2,32}#\d{4}$/.test(tag);
   }
-  populateChannelSelect();
 
-  // Quand on change de catégorie
-  categorySelect.addEventListener("change", () => {
-    const categoryKey = categorySelect.value;
-    showButtons(categoryKey);
-    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-    selectedCategory = categoryKey;
-    selectedKey = null;
-    selectedURL = null;
-    selectedChannelId = null;
-    sendButton.disabled = true;
-  });
+  function showError(message) {
+    document.getElementById("authError").textContent = message;
+  }
 
-  // Affiche les boutons selon catégorie
-  function showButtons(categoryKey) {
-    buttonsContainer.innerHTML = "";
-    sendButton.disabled = true;
-    backButton.style.display = "none";
-    selectedKey = null;
-    selectedURL = null;
+  async function register() {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const pseudo = pseudoInput.value;
 
-    if (!categoryKey || !categories[categoryKey]) return;
+    if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide (format requis : Nom#1234)");
 
-    if (categoryKey === "jeux") {
-      // Sous-jeux à choisir
-      buttonsContainer.innerHTML = `
-        <button class="btnSubGame" data-subgame="grilleDeLumiere">Grille de lumière</button>
-        <button class="btnSubGame" data-subgame="eclaireurs">Éclaireurs</button>
-      `;
-      Array.from(document.querySelectorAll(".btnSubGame")).forEach(btn => {
-        btn.addEventListener("click", () => {
-          showGameButtons(btn.dataset.subgame);
-        });
-      });
-      return;
-    }
-
-    // Sinon, liste des boutons classique
-    const elements = categories[categoryKey];
-    for (const key in elements) {
-      const btn = document.createElement("button");
-      btn.textContent = key;
-      btn.dataset.url = elements[key];
-      btn.addEventListener("click", () => {
-        previewImage(btn.dataset.url);
-        selectedKey = key;
-        selectedURL = btn.dataset.url;
-        updateSendButtonState();
-      });
-      buttonsContainer.appendChild(btn);
+    try {
+      const { user } = await auth.createUserWithEmailAndPassword(email, password);
+      await user.updateProfile({ displayName: pseudo });
+      showPanel();
+    } catch (err) {
+      showError(err.message);
     }
   }
 
-  // Affiche boutons sous-jeu
-  function showGameButtons(subgameKey) {
-    buttonsContainer.innerHTML = "";
-    backButton.style.display = "inline-block";
-    previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-    selectedCategory = subgameKey;
-    selectedKey = null;
-    selectedURL = null;
-    sendButton.disabled = true;
+  async function login() {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const pseudo = pseudoInput.value;
 
-    const elements = categories[subgameKey];
-    for (const key in elements) {
-      const btn = document.createElement("button");
-      btn.textContent = key;
-      btn.dataset.url = elements[key];
-      btn.addEventListener("click", () => {
-        previewImage(btn.dataset.url);
-        selectedKey = key;
-        selectedURL = btn.dataset.url;
-        updateSendButtonState();
-      });
-      buttonsContainer.appendChild(btn);
+    if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide (format requis : Nom#1234)");
+
+    try {
+      const { user } = await auth.signInWithEmailAndPassword(email, password);
+      if (user.displayName !== pseudo) {
+        await user.updateProfile({ displayName: pseudo });
+      }
+      showPanel();
+    } catch (err) {
+      showError(err.message);
     }
   }
 
-  backButton.addEventListener("click", () => {
-    if (selectedCategory === "grilleDeLumiere" || selectedCategory === "eclaireurs") {
-      // Retour à jeux
-      selectedCategory = "jeux";
-      showButtons("jeux");
-      previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-      selectedKey = null;
-      selectedURL = null;
-      sendButton.disabled = true;
-      backButton.style.display = "none";
-    } else {
-      // Retour au select catégorie
-      categorySelect.value = "";
-      buttonsContainer.innerHTML = "";
-      previewContainer.innerHTML = "<p>Sélectionnez un élément pour voir l'aperçu ici.</p>";
-      sendButton.disabled = true;
-      backButton.style.display = "none";
-      selectedCategory = null;
-      selectedKey = null;
-      selectedURL = null;
+  function showPanel() {
+    document.getElementById("authContainer").style.display = "none";
+    document.getElementById("panelContainer").style.display = "block";
+  }
+
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const pseudoInput = document.getElementById("pseudoDiscord");
+
+  auth.onAuthStateChanged(user => {
+    if (user && isValidDiscordTag(user.displayName)) {
+      showPanel();
     }
   });
-
-  // Gérer changement salon Discord
-  channelSelect.addEventListener("change", () => {
-    selectedChannelId = channelSelect.value || null;
-    updateSendButtonState();
-  });
-
-  // Active ou désactive le bouton envoyer
-  function updateSendButtonState() {
-    sendButton.disabled = !(selectedURL && selectedChannelId);
-  }
-
-  // Affiche l'aperçu de l'image sélectionnée
-  function previewImage(url) {
-    previewContainer.innerHTML = `<img src="${url}" alt="Aperçu de l'image sélectionnée" />`;
-  }
-
-  // Fonction d'envoi via fetch
-  sendButton.addEventListener("click", () => {
-    if (!selectedURL || !selectedChannelId) return;
-
-    sendButton.disabled = true;
-    logs.textContent = "Envoi en cours...";
-
-    // Préparer la charge utile
-    const payload = {
-      channelId: selectedChannelId,
-      content: selectedURL
-    };
-
-    // Exemple d'URL API à modifier selon ton backend
-    const API_URL = "https://ton-backend.example/api/sendDiscordMessage";
-
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Erreur serveur: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        logs.textContent = `Message envoyé avec succès dans le salon "${availableChannels[selectedChannelId]}".`;
-      })
-      .catch(err => {
-        logs.textContent = `❌ Erreur lors de l'envoi : ${err.message}`;
-      })
-      .finally(() => {
-        sendButton.disabled = false;
-      });
-  });
-
 </script>
 
 </body>
