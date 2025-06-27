@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Godplace - Connexion</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -45,11 +45,11 @@
   <p id="authError" style="color:red;"></p>
 </div>
 
-<!-- ✅ Panel principal (caché tant qu'on n'est pas connecté) -->
+<!-- ✅ Panel principal -->
 <div id="panelContainer" style="display:none;">
   <h2>Bienvenue sur le panel GodPlace</h2>
-  <p>Panel ici...</p>
-  <!-- 🔧 Ton panel complet sera ici (copie/colle le code HTML de ton panel dans ce div) -->
+  <p id="userInfo"></p>
+  <!-- 🔧 Ici tu peux coller ton panel complet -->
 </div>
 
 <script>
@@ -57,13 +57,18 @@
     apiKey: "AIzaSyDuY1T6HaxfDbEcZZYOrpDcD5LPNUTmeUc",
     authDomain: "godplace-dea67.firebaseapp.com",
     projectId: "godplace-dea67",
-    storageBucket: "godplace-dea67.firebasestorage.app",
+    storageBucket: "godplace-dea67.appspot.com",
     messagingSenderId: "774010087004",
     appId: "1:774010087004:web:31346dfbc1b2adfed2e899",
     measurementId: "G-HNXY5FDSZK"
   };
+
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const pseudoInput = document.getElementById("pseudoDiscord");
 
   function isValidDiscordTag(tag) {
     return /^.{2,32}#\d{4}$/.test(tag);
@@ -74,25 +79,25 @@
   }
 
   async function register() {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const pseudo = pseudoInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const pseudo = pseudoInput.value.trim();
 
     if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide (format requis : Nom#1234)");
 
     try {
       const { user } = await auth.createUserWithEmailAndPassword(email, password);
       await user.updateProfile({ displayName: pseudo });
-      showPanel();
+      showPanel(user);
     } catch (err) {
       showError(err.message);
     }
   }
 
   async function login() {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const pseudo = pseudoInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const pseudo = pseudoInput.value.trim();
 
     if (!isValidDiscordTag(pseudo)) return showError("Pseudo Discord invalide (format requis : Nom#1234)");
 
@@ -101,24 +106,24 @@
       if (user.displayName !== pseudo) {
         await user.updateProfile({ displayName: pseudo });
       }
-      showPanel();
+      showPanel(user);
     } catch (err) {
       showError(err.message);
     }
   }
 
-  function showPanel() {
+  function showPanel(user) {
+    if (!user || !isValidDiscordTag(user.displayName)) {
+      return showError("Utilisateur invalide ou pseudo mal formaté");
+    }
     document.getElementById("authContainer").style.display = "none";
     document.getElementById("panelContainer").style.display = "block";
+    document.getElementById("userInfo").textContent = `Connecté en tant que : ${user.displayName}`;
   }
-
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const pseudoInput = document.getElementById("pseudoDiscord");
 
   auth.onAuthStateChanged(user => {
     if (user && isValidDiscordTag(user.displayName)) {
-      showPanel();
+      showPanel(user);
     }
   });
 </script>
