@@ -1,45 +1,1711 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Godplace Panel</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godplace Panel</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* Login/Register Styles */
+        .auth-container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            color: #d4af37;
+            border-bottom-color: #d4af37;
+            font-weight: 500;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            ring: 2px solid #d4af37;
+            border-color: #d4af37;
+        }
+
+        .auth-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .auth-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .user-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-email {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .user-discord {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .admin-badge {
+            background: #d4af37;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .modo-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 24px 24px 0 24px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: white;
+            border: 1px solid #d4af37;
+        }
+
+        .btn-primary:hover {
+            background: #b8941f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+
+        .btn-outline:hover {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn-outline.active {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            margin-bottom: 24px;
+        }
+
+        .btn-large {
+            height: 80px;
+            font-size: 1rem;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-test {
+            background: #10b981;
+            color: white;
+            border: 1px solid #10b981;
+            margin-left: 16px;
+        }
+
+        .btn-test:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border: 1px solid #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border: 1px solid #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Select */
+        .select {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            color: black;
+        }
+
+        .select:focus {
+            outline: none;
+            ring: 2px solid #d4af37;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-2,
+            .grid-cols-3,
+            .grid-cols-4,
+            .grid-cols-5 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-cols-2,
+            .grid-cols-3,
+            .grid-cols-4,
+            .grid-cols-5 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Image Preview */
+        .image-preview {
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Logs */
+        .logs {
+            background: #fffbea;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: #6b5e00;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #d4af37;
+        }
+
+        .log-timestamp {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .log-user {
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+        .log-action {
+            color: #374151;
+        }
+
+        /* Authorized Users Management */
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: #f9fafb;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .add-user-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        /* Badges */
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background: #d4af37;
+            color: white;
+        }
+
+        .badge-inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+
+        /* Icons */
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* URL Config */
+        .url-config {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
-  <h1>Godplace</h1>
-
-  <section>
-    <h2>1. Choisissez une catégorie</h2>
-    <select id="categorySelect">
-      <option value="">-- Sélectionnez une catégorie --</option>
-    </select>
-  </section>
-
-  <section>
-    <h2>2. Choisissez un élément</h2>
-    <div id="buttonsContainer" class="buttons-group"></div>
-  </section>
-
-  <section>
-    <h2>3. Aperçu</h2>
-    <div id="previewContainer" class="preview">
-      <p>Sélectionnez un élément pour voir l'aperçu ici.</p>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-header">
+            <h1>🔐 Godplace Panel</h1>
+            <p>Connexion ou inscription requise</p>
+        </div>
+        
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Connexion</div>
+            <div class="auth-tab" data-tab="register">Inscription</div>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Mot de passe</label>
+                <input type="password" id="loginPassword" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginDiscordPseudo">Pseudo Discord</label>
+                <input type="text" id="loginDiscordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                🚀 Se connecter
+            </button>
+        </form>
+        
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form hidden">
+            <div class="form-group">
+                <label class="form-label" for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerPassword">Mot de passe</label>
+                <input type="password" id="registerPassword" class="form-input" minlength="6" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerPasswordConfirm">Confirmer le mot de passe</label>
+                <input type="password" id="registerPasswordConfirm" class="form-input" minlength="6" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerDiscordPseudo">Pseudo Discord</label>
+                <input type="text" id="registerDiscordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
+                <small style="color: #6b7280; font-size: 0.75rem;">
+                    ⚠️ Votre pseudo Discord doit être autorisé par un modérateur
+                </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                📝 S'inscrire
+            </button>
+        </form>
+        
+        <div id="authError" class="auth-error hidden"></div>
+        <div id="authSuccess" class="auth-success hidden"></div>
     </div>
-  </section>
 
-  <section class="actions">
-    <h2>4. Choisissez un salon Discord</h2>
-    <select id="channelSelect" style="display:none;"></select>
-    <button id="backButton" style="display:none;">Retour</button>
-    <button id="sendButton" disabled>Envoyer au bot Discord</button>
-  </section>
+    <!-- Main Panel -->
+    <div id="mainPanel" class="container hidden">
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-details">
+                <div class="user-email" id="userEmail"></div>
+                <div class="user-discord" id="userDiscord"></div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span id="adminBadge" class="admin-badge hidden">Admin</span>
+                <span id="modoBadge" class="modo-badge hidden">Modérateur</span>
+                <button id="logoutBtn" class="btn btn-danger">Déconnexion</button>
+            </div>
+        </div>
 
-  <section>
-    <h2>Logs des actions</h2>
-    <pre id="logs" class="logs">Aucune action pour l'instant.</pre>
-  </section>
+        <!-- Header -->
+        <div class="header">
+            <h1>Godplace Panel</h1>
+            <p>Panneau d'administration pour l'envoi de contenus spirituels</p>
+            
+            <!-- Test de connexion -->
+            <div style="margin-top: 16px;">
+                <button id="testBtn" class="btn btn-test">🔧 Tester la connexion</button>
+            </div>
+        </div>
 
-  <script src="panel.js"></script>
+        <!-- Configuration URL -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">⚙️ Configuration du serveur</h2>
+                <p class="card-description">Configurez l'URL de votre serveur bot</p>
+            </div>
+            <div class="card-content">
+                <div class="url-config">
+                    <label for="serverUrl" style="display: block; margin-bottom: 8px; font-weight: 500;">URL du serveur :</label>
+                    <input 
+                        type="text" 
+                        id="serverUrl" 
+                        class="url-input" 
+                        value="https://bot-production-e4ec.up.railway.app"
+                        placeholder="https://votre-serveur.railway.app"
+                    >
+                    <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280;">
+                        ⚠️ Assurez-vous que votre serveur a les endpoints <code>/api/health</code> et <code>/api/send-message</code>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authorized Users Management (Admin/Modo Only) -->
+        <div id="authorizedUsersSection" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">👥 Gestion des utilisateurs autorisés</h2>
+                <p class="card-description">Gérer la liste des pseudos Discord autorisés</p>
+            </div>
+            <div class="card-content">
+                <div class="add-user-form">
+                    <input 
+                        type="text" 
+                        id="newUserPseudo" 
+                        class="add-user-input" 
+                        placeholder="Pseudo Discord (ex: User#1234)"
+                    >
+                    <button id="addUserBtn" class="btn btn-success">
+                        ➕ Ajouter
+                    </button>
+                </div>
+                <div id="authorizedUsersList" class="user-list">
+                    <div style="padding: 20px; text-align: center; color: #6b7280;">
+                        Chargement des utilisateurs autorisés...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <button id="backBtn" class="btn btn-outline btn-back hidden">
+            ← Retour
+        </button>
+
+        <!-- Main Category Selection -->
+        <div id="mainView" class="card">
+            <div class="card-header">
+                <h2 class="card-title">1. Choisissez une catégorie</h2>
+                <p class="card-description">Sélectionnez la catégorie de contenu à envoyer</p>
+            </div>
+            <div class="card-content">
+                <select id="categorySelect" class="select">
+                    <option value="">-- Sélectionnez une catégorie --</option>
+                    <option value="mondeEnDeclin">Le Monde en Déclin</option>
+                    <option value="gagneCoeurChrist">Gagne le cœur du Christ</option>
+                    <option value="loueAvecTonArt">Loue avec ton art</option>
+                    <option value="chaineSacree">Chaîne sacrée</option>
+                    <option value="savoirChretien">Savoir chrétien</option>
+                    <option value="jePrefere">Je préfère</option>
+                    <option value="jeDebats">Je débats</option>
+                    <option value="composeTonChant">Compose ton chant</option>
+                    <option value="priereEnChoeur">Prière en chœur</option>
+                    <option value="quiSuisJeBiblique">Qui suis-je biblique</option>
+                    <option value="comprendreApocalypse">Comprendre l'apocalypse</option>
+                    <option value="bibleIllustree">LA Bible illustrée</option>
+                    <option value="cinemaChretien">Cinéma Chrétien</option>
+                    <option value="jeux">Jeux</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Games Selection -->
+        <div id="gamesView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">Choisissez un jeu</h2>
+                <p class="card-description">Sélectionnez le type de jeu</p>
+            </div>
+            <div class="card-content">
+                <div class="grid grid-cols-2">
+                    <button class="btn btn-outline btn-large" data-game="grilleDeLumiere">Grille de lumière</button>
+                    <button class="btn btn-outline btn-large" data-game="eclaireurs">Éclaireurs</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Week Selection -->
+        <div id="weekView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">2. Choisissez une option</h2>
+                <p id="weekDescription" class="card-description">Sélectionnez une option</p>
+            </div>
+            <div class="card-content">
+                <div id="weekButtons" class="grid grid-cols-5"></div>
+            </div>
+        </div>
+
+        <!-- Image Preview -->
+        <div id="previewView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">👁️ 3. Aperçu</h2>
+                <p class="card-description">Prévisualisation de l'image sélectionnée</p>
+            </div>
+            <div class="card-content">
+                <div class="image-preview">
+                    <img id="previewImage" src="/placeholder.svg" alt="Aperçu de l'image sélectionnée" width="400" height="400">
+                </div>
+            </div>
+        </div>
+
+        <!-- Discord Channel Selection -->
+        <div id="channelView" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">4. Choisissez un salon Discord</h2>
+                <p class="card-description">Sélectionnez le salon où envoyer le contenu</p>
+            </div>
+            <div class="card-content" style="display: flex; flex-direction: column; gap: 16px;">
+                <select id="channelSelect" class="select">
+                    <option value="">-- Choisissez un salon --</option>
+                    <option value="1378679774742056974">Salon Grille de lumière</option>
+                    <option value="1378680922928320653">Salon Éclaireurs</option>
+                    <option value="1325922071473295411">Salon Général</option>
+                    <option value="1378679000000000001">Salon Annonces</option>
+                    <option value="1365417738436087909">Je préfères G1</option>
+                    <option value="1365417832774635540">Je préfères G2</option>
+                </select>
+                <button id="sendBtn" class="btn btn-primary btn-full" disabled>
+                    📤 Envoyer au bot Discord
+                </button>
+            </div>
+        </div>
+
+        <!-- Logs (Admin/Modo Only) -->
+        <div id="logsSection" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">📋 Logs des actions</h2>
+                <p class="card-description">Historique des actions effectuées</p>
+            </div>
+            <div class="card-content">
+                <div id="logs" class="logs">Chargement des logs...</div>
+            </div>
+        </div>
+
+        <!-- Status Badges -->
+        <div class="badges">
+            <span id="categoryBadge" class="badge badge-inactive">Catégorie: Non sélectionnée</span>
+            <span id="weekBadge" class="badge badge-inactive">Option: Non sélectionnée</span>
+            <span id="channelBadge" class="badge badge-inactive">Salon: Non sélectionné</span>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuY1T6HaxfDbEcZZYOrpDcD5LPNUTmeUc",
+            authDomain: "godplace-dea67.firebaseapp.com",
+            projectId: "godplace-dea67",
+            storageBucket: "godplace-dea67.firebasestorage.app",
+            messagingSenderId: "774010087004",
+            appId: "1:774010087004:web:31346dfbc1b2adfed2e899",
+            measurementId: "G-HNXY5FDSZK"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Emails des administrateurs et modérateurs
+        const ADMIN_EMAILS = [
+            "admin1@example.com",
+            "admin2@example.com"
+        ];
+
+        const MODO_EMAILS = [
+            "modo1@example.com",
+            "modo2@example.com"
+        ];
+
+        // Variables globales
+        let currentUser = null;
+        let userDiscordPseudo = '';
+        let isAdmin = false;
+        let isModo = false;
+        let currentAuthTab = 'login';
+
+        // Structure des données (même que précédemment)
+        const categories = {
+            mondeEnDeclin: {
+                title: "Le Monde en Déclin",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725262414876693/FICHES_SPECIFIQUES_PETIT_FORMAT_-_4.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725295369388042/FICHES_SPECIFIQUES_PETIT_FORMAT_-_5.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725348314222754/FICHES_SPECIFIQUES_PETIT_FORMAT_-_6.png"
+                }
+            },
+            gagneCoeurChrist: {
+                title: "Gagne le cœur du Christ",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725653625864284/FICHES_SPECIFIQUES_PETIT_FORMAT_-_13.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725697045434488/FICHES_SPECIFIQUES_PETIT_FORMAT_-_14.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725725654782062/FICHES_SPECIFIQUES_PETIT_FORMAT_-_15.png"
+                }
+            },
+            loueAvecTonArt: {
+                title: "Loue avec ton art",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725770085040218/FICHES_SPECIFIQUES_PETIT_FORMAT_-_16.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725825047068722/FICHES_SPECIFIQUES_PETIT_FORMAT_-_17.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725866457567416/FICHES_SPECIFIQUES_PETIT_FORMAT_-_18.png"
+                }
+            },
+            chaineSacree: {
+                title: "Chaîne sacrée",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365725911411851344/FICHES_SPECIFIQUES_PETIT_FORMAT_-_19.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365725981528166450/FICHES_SPECIFIQUES_PETIT_FORMAT_-_20.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726016988465158/FICHES_SPECIFIQUES_PETIT_FORMAT_-_21.png"
+                }
+            },
+            savoirChretien: {
+                title: "Savoir chrétien",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726058002784767/FICHES_SPECIFIQUES_PETIT_FORMAT_-_22.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726094986149378/FICHES_SPECIFIQUES_PETIT_FORMAT_-_23.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726124882736641/FICHES_SPECIFIQUES_PETIT_FORMAT_-_24.png"
+                }
+            },
+            jePrefere: {
+                title: "Je préfère",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726155632450067/FICHES_SPECIFIQUES_PETIT_FORMAT_-_25.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726183903265536/FICHES_SPECIFIQUES_PETIT_FORMAT_-_26.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726215589114901/FICHES_SPECIFIQUES_PETIT_FORMAT_-_27.png"
+                }
+            },
+            jeDebats: {
+                title: "Je débats",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726250338652418/FICHES_SPECIFIQUES_PETIT_FORMAT_-_28.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726283172867072/FICHES_SPECIFIQUES_PETIT_FORMAT_-_29.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726313883936275/FICHES_SPECIFIQUES_PETIT_FORMAT_-_30.png"
+                }
+            },
+            composeTonChant: {
+                title: "Compose ton chant",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726345386018823/FICHES_SPECIFIQUES_PETIT_FORMAT_-_31.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726374519505411/FICHES_SPECIFIQUES_PETIT_FORMAT_-_32.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726412025523506/FICHES_SPECIFIQUES_PETIT_FORMAT_-_33.png"
+                }
+            },
+            priereEnChoeur: {
+                title: "Prière en chœur",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726445561549856/FICHES_SPECIFIQUES_PETIT_FORMAT_-_34.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726477503522300/FICHES_SPECIFIQUES_PETIT_FORMAT_-_35.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726504952314986/FICHES_SPECIFIQUES_PETIT_FORMAT_-_36.png"
+                }
+            },
+            quiSuisJeBiblique: {
+                title: "Qui suis-je biblique",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726536286921778/FICHES_SPECIFIQUES_PETIT_FORMAT_-_37.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726566499025000/FICHES_SPECIFIQUES_PETIT_FORMAT_-_38.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726598318859014/FICHES_SPECIFIQUES_PETIT_FORMAT_-_39.png"
+                }
+            },
+            comprendreApocalypse: {
+                title: "Comprendre l'apocalypse",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726630002579476/FICHES_SPECIFIQUES_PETIT_FORMAT_-_40.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726663403672848/FICHES_SPECIFIQUES_PETIT_FORMAT_-_41.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726700276018184/FICHES_SPECIFIQUES_PETIT_FORMAT_-_42.png"
+                }
+            },
+            bibleIllustree: {
+                title: "LA Bible illustrée",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726733322940924/FICHES_SPECIFIQUES_PETIT_FORMAT_-_43.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726763165978650/FICHES_SPECIFIQUES_PETIT_FORMAT_-_44.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726794945651970/FICHES_SPECIFIQUES_PETIT_FORMAT_-_45.png"
+                }
+            },
+            cinemaChretien: {
+                title: "Cinéma Chrétien",
+                weeks: {
+                    "Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726824389902396/FICHES_SPECIFIQUES_PETIT_FORMAT_-_46.png",
+                    "Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726860361834760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_47.png",
+                    "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365726891917857532/FICHES_SPECIFIQUES_PETIT_FORMAT_-_48.png"
+                }
+            }
+        };
+
+        const gameCategories = {
+            grilleDeLumiere: {
+                title: "Grille de lumière",
+                buttons: {
+                    "Grille de lumière 1": "https://media.discordapp.net/attachments/1365412596655853699/1381746959072628826/PLATEAUX_CODES_SACRES_-_3.png",
+                    "Grille de lumière 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747211351883867/PLATEAUX_CODES_SACRES_-_6.png",
+                    "Grille de lumière 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747610108432527/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747659450355836/PLATEAUX_CODES_SACRES_-_12.png",
+                    "Grille de lumière 5": "https://media.discordapp.net/attachments/1365412596655853699/1381747879051395174/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748077844627617/PLATEAUX_CODES_SACRES_-_18.png",
+                    "Grille de lumière 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748456841810021/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748553675964709/PLATEAUX_CODES_SACRES_-_24.png",
+                    "Grille de lumière 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748623842218034/PLATEAUX_CODES_SACRES_-_28.png",
+                    "Grille de lumière 10": "https://media.discordapp.net/attachments/1365412596655853699/1381748876700291162/PLATEAUX_CODES_SACRES.png"
+                }
+            },
+            eclaireurs: {
+                title: "Éclaireurs",
+                buttons: {
+                    "Éclaireurs 1": "https://media.discordapp.net/attachments/1365412596655853699/1381747093592342528/PLATEAUX_CODES_SACRES_-_4.png",
+                    "Éclaireurs 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747251466211559/PLATEAUX_CODES_SACRES_-_7.png",
+                    "Éclaireurs 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747367199510549/PLATEAUX_CODES_SACRES_-_10.png",
+                    "Éclaireurs 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747699107234003/PLATEAUX_CODES_SACRES_-_13.png",
+                    "Éclaireurs 5": "https://media.discordapp.net/attachments/1365412596655853699/1381748030075568199/PLATEAUX_CODES_SACRES_-_16.png",
+                    "Éclaireurs 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748122304249896/PLATEAUX_CODES_SACRES_-_19.png",
+                    "Éclaireurs 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748505860767805/PLATEAUX_CODES_SACRES_-_22.png",
+                    "Éclaireurs 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748588476104835/PLATEAUX_CODES_SACRES_-_25.png",
+                    "Éclaireurs 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748653026312272/PLATEAUX_CODES_SACRES_-_27.png",
+                    "Éclaireurs 10": "https://media.discordapp.net/attachments/1365412596655853699/1381749325507465226/PLATEAUX_CODES_SACRES_-_31.png",
+                    "Éclaireurs 11": "https://media.discordapp.net/attachments/1365412596655853699/1381749407732469922/PLATEAUX_CODES_SACRES_-_36.png",
+                    "Éclaireurs 12": "https://media.discordapp.net/attachments/1365412596655853699/1381749515937120257/PLATEAUX_CODES_SACRES_-_40.png",
+                    "Éclaireurs 13": "https://media.discordapp.net/attachments/1365412596655853699/1381749593733071009/PLATEAUX_CODES_SACRES.png",
+                    "Éclaireurs 14": "https://media.discordapp.net/attachments/1365412596655853699/1381749662737891459/PLATEAUX_CODES_SACRES_-_45.png"
+                }
+            }
+        };
+
+        const availableChannels = {
+            "1378679774742056974": "Salon Grille de lumière",
+            "1378680922928320653": "Salon Éclaireurs",
+            "1325922071473295411": "Salon Général",
+            "1378679000000000001": "Salon Annonces",
+            "1365417738436087909": "Je préfères G1",
+            "1365417832774635540": "Je préfères G2"
+        };
+
+        // Variables d'état du panel
+        let currentView = 'main';
+        let selectedCategory = '';
+        let selectedGame = '';
+        let selectedWeek = '';
+        let selectedChannel = '';
+        let selectedImage = '';
+        let isLoading = false;
+
+        // Éléments DOM
+        const elements = {
+            authScreen: document.getElementById('authScreen'),
+            mainPanel: document.getElementById('mainPanel'),
+            loginForm: document.getElementById('loginForm'),
+            registerForm: document.getElementById('registerForm'),
+            authError: document.getElementById('authError'),
+            authSuccess: document.getElementById('authSuccess'),
+            userEmail: document.getElementById('userEmail'),
+            userDiscord: document.getElementById('userDiscord'),
+            adminBadge: document.getElementById('adminBadge'),
+            modoBadge: document.getElementById('modoBadge'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            logsSection: document.getElementById('logsSection'),
+            authorizedUsersSection: document.getElementById('authorizedUsersSection'),
+            authorizedUsersList: document.getElementById('authorizedUsersList'),
+            newUserPseudo: document.getElementById('newUserPseudo'),
+            addUserBtn: document.getElementById('addUserBtn'),
+            mainView: document.getElementById('mainView'),
+            gamesView: document.getElementById('gamesView'),
+            weekView: document.getElementById('weekView'),
+            previewView: document.getElementById('previewView'),
+            channelView: document.getElementById('channelView'),
+            backBtn: document.getElementById('backBtn'),
+            categorySelect: document.getElementById('categorySelect'),
+            weekButtons: document.getElementById('weekButtons'),
+            weekDescription: document.getElementById('weekDescription'),
+            previewImage: document.getElementById('previewImage'),
+            channelSelect: document.getElementById('channelSelect'),
+            sendBtn: document.getElementById('sendBtn'),
+            testBtn: document.getElementById('testBtn'),
+            serverUrl: document.getElementById('serverUrl'),
+            logs: document.getElementById('logs'),
+            categoryBadge: document.getElementById('categoryBadge'),
+            weekBadge: document.getElementById('weekBadge'),
+            channelBadge: document.getElementById('channelBadge')
+        };
+
+        // Fonctions d'authentification
+        function checkUserRole(email) {
+            const isAdminUser = ADMIN_EMAILS.includes(email);
+            const isModoUser = MODO_EMAILS.includes(email);
+            return { isAdmin: isAdminUser, isModo: isModoUser };
+        }
+
+        async function checkDiscordPseudoAuthorized(pseudo) {
+            try {
+                if (!pseudo || pseudo.trim() === '') {
+                    return false;
+                }
+                
+                const doc = await db.collection('authorized_users').doc(pseudo.trim()).get();
+                return doc.exists;
+            } catch (error) {
+                console.error('Erreur vérification pseudo:', error);
+                // En cas d'erreur de connexion à Firestore, on autorise temporairement
+                // pour éviter de bloquer complètement l'accès
+                return true;
+            }
+        }
+
+        async function login(email, password, discordPseudo) {
+            try {
+                // D'abord se connecter avec Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Ensuite vérifier si le pseudo Discord est autorisé
+                const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
+                if (!isAuthorized) {
+                    // Déconnecter l'utilisateur si le pseudo n'est pas autorisé
+                    await auth.signOut();
+                    throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur.');
+                }
+
+                userDiscordPseudo = discordPseudo;
+                localStorage.setItem('discordPseudo', discordPseudo);
+                
+                return userCredential.user;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function register(email, password, passwordConfirm, discordPseudo) {
+            try {
+                // Vérifications de base
+                if (password !== passwordConfirm) {
+                    throw new Error('Les mots de passe ne correspondent pas');
+                }
+
+                if (password.length < 6) {
+                    throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+                }
+
+                // Vérifier si le pseudo Discord est autorisé AVANT l'inscription
+                const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
+                if (!isAuthorized) {
+                    throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur pour être ajouté à la liste.');
+                }
+
+                // Créer le compte
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                userDiscordPseudo = discordPseudo;
+                localStorage.setItem('discordPseudo', discordPseudo);
+                
+                // Sauvegarder le log d'inscription
+                await saveLog('Inscription', `Nouvel utilisateur inscrit avec le pseudo Discord: ${discordPseudo}`);
+                
+                return userCredential.user;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('discordPseudo');
+                userDiscordPseudo = '';
+                currentUser = null;
+                isAdmin = false;
+                isModo = false;
+                showAuthScreen();
+            } catch (error) {
+                console.error('Erreur de déconnexion:', error);
+            }
+        }
+
+        function showAuthScreen() {
+            elements.authScreen.classList.remove('hidden');
+            elements.mainPanel.classList.add('hidden');
+        }
+
+        function showMainPanel() {
+            elements.authScreen.classList.add('hidden');
+            elements.mainPanel.classList.remove('hidden');
+            
+            // Afficher les informations utilisateur
+            elements.userEmail.textContent = currentUser.email;
+            elements.userDiscord.textContent = `Discord: ${userDiscordPseudo}`;
+            
+            // Gérer les badges et permissions
+            if (isAdmin) {
+                elements.adminBadge.classList.remove('hidden');
+                elements.modoBadge.classList.add('hidden');
+                elements.logsSection.classList.remove('hidden');
+                elements.authorizedUsersSection.classList.remove('hidden');
+                loadLogs();
+                loadAuthorizedUsers();
+            } else if (isModo) {
+                elements.adminBadge.classList.add('hidden');
+                elements.modoBadge.classList.remove('hidden');
+                elements.logsSection.classList.remove('hidden');
+                elements.authorizedUsersSection.classList.remove('hidden');
+                loadLogs();
+                loadAuthorizedUsers();
+            } else {
+                elements.adminBadge.classList.add('hidden');
+                elements.modoBadge.classList.add('hidden');
+                elements.logsSection.classList.add('hidden');
+                elements.authorizedUsersSection.classList.add('hidden');
+            }
+        }
+
+        // Gestion des onglets d'authentification
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                
+                // Mettre à jour les onglets
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Afficher le bon formulaire
+                if (tabName === 'login') {
+                    elements.loginForm.classList.remove('hidden');
+                    elements.registerForm.classList.add('hidden');
+                } else {
+                    elements.loginForm.classList.add('hidden');
+                    elements.registerForm.classList.remove('hidden');
+                }
+                
+                currentAuthTab = tabName;
+                
+                // Effacer les messages d'erreur/succès
+                elements.authError.classList.add('hidden');
+                elements.authSuccess.classList.add('hidden');
+            });
+        });
+
+        // Event listeners pour l'authentification
+        elements.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const discordPseudo = document.getElementById('loginDiscordPseudo').value;
+            
+            elements.authError.classList.add('hidden');
+            
+            try {
+                await login(email, password, discordPseudo);
+            } catch (error) {
+                elements.authError.textContent = `Erreur de connexion: ${error.message}`;
+                elements.authError.classList.remove('hidden');
+            }
+        });
+
+        elements.registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            const discordPseudo = document.getElementById('registerDiscordPseudo').value;
+            
+            elements.authError.classList.add('hidden');
+            elements.authSuccess.classList.add('hidden');
+            
+            try {
+                await register(email, password, passwordConfirm, discordPseudo);
+                elements.authSuccess.textContent = 'Inscription réussie ! Vous pouvez maintenant vous connecter.';
+                elements.authSuccess.classList.remove('hidden');
+                
+                // Réinitialiser le formulaire
+                elements.registerForm.reset();
+            } catch (error) {
+                elements.authError.textContent = `Erreur d'inscription: ${error.message}`;
+                elements.authError.classList.remove('hidden');
+            }
+        });
+
+        elements.logoutBtn.addEventListener('click', logout);
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                const roles = checkUserRole(user.email);
+                isAdmin = roles.isAdmin;
+                isModo = roles.isModo;
+                
+                // Récupérer le pseudo Discord depuis localStorage
+                const savedPseudo = localStorage.getItem('discordPseudo');
+                if (savedPseudo) {
+                    userDiscordPseudo = savedPseudo;
+                    
+                    // Vérifier si le pseudo est toujours autorisé
+                    try {
+                        const isStillAuthorized = await checkDiscordPseudoAuthorized(savedPseudo);
+                        if (!isStillAuthorized && !isAdmin && !isModo) {
+                            // Si le pseudo n'est plus autorisé et que ce n'est pas un admin/modo
+                            alert('Votre accès a été révoqué. Contactez un modérateur.');
+                            await logout();
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Erreur vérification autorisation:', error);
+                        // En cas d'erreur, on laisse passer pour éviter de bloquer
+                    }
+                }
+                
+                showMainPanel();
+            } else {
+                showAuthScreen();
+            }
+        });
+
+        // Gestion des utilisateurs autorisés
+        async function loadAuthorizedUsers() {
+            if (!isAdmin && !isModo) return;
+            
+            try {
+                const usersSnapshot = await db.collection('authorized_users').orderBy('pseudo').get();
+                
+                let usersHtml = '';
+                
+                if (usersSnapshot.empty) {
+                    usersHtml = '<div style="padding: 20px; text-align: center; color: #6b7280;">Aucun utilisateur autorisé.</div>';
+                } else {
+                    usersSnapshot.forEach(doc => {
+                        const userData = doc.data();
+                        const pseudo = doc.id;
+                        const addedBy = userData.addedBy || 'Inconnu';
+                        const addedAt = userData.addedAt ? userData.addedAt.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+                        
+                        usersHtml += `
+                            <div class="user-item">
+                                <div>
+                                    <div style="font-weight: 500;">${pseudo}</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">
+                                        Ajouté par ${addedBy} le ${addedAt}
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-small" onclick="removeAuthorizedUser('${pseudo}')">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+                
+                elements.authorizedUsersList.innerHTML = usersHtml;
+            } catch (error) {
+                console.error('Erreur chargement utilisateurs autorisés:', error);
+                elements.authorizedUsersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc2626;">Erreur lors du chargement.</div>';
+            }
+        }
+
+        async function addAuthorizedUser() {
+            const pseudo = elements.newUserPseudo.value.trim();
+            
+            if (!pseudo) {
+                alert('Veuillez entrer un pseudo Discord');
+                return;
+            }
+            
+            if (!isAdmin && !isModo) {
+                alert('Vous n\'avez pas les permissions pour ajouter des utilisateurs');
+                return;
+            }
+            
+            try {
+                // Vérifier si l'utilisateur existe déjà
+                const doc = await db.collection('authorized_users').doc(pseudo).get();
+                if (doc.exists) {
+                    alert('Ce pseudo Discord est déjà autorisé');
+                    return;
+                }
+                
+                // Ajouter l'utilisateur
+                await db.collection('authorized_users').doc(pseudo).set({
+                    pseudo: pseudo,
+                    addedBy: userDiscordPseudo,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    addedByEmail: currentUser.email
+                });
+                
+                // Sauvegarder le log
+                await saveLog('Utilisateur autorisé ajouté', `Pseudo Discord ajouté: ${pseudo}`);
+                
+                // Recharger la liste
+                loadAuthorizedUsers();
+                
+                // Vider le champ
+                elements.newUserPseudo.value = '';
+                
+                alert(`✅ Pseudo Discord "${pseudo}" ajouté avec succès !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+                
+            } catch (error) {
+                console.error('Erreur ajout utilisateur:', error);
+                alert(`❌ Erreur lors de l'ajout: ${error.message}`);
+            }
+        }
+
+        async function removeAuthorizedUser(pseudo) {
+            if (!isAdmin && !isModo) {
+                alert('Vous n\'avez pas les permissions pour supprimer des utilisateurs');
+                return;
+            }
+            
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer "${pseudo}" de la liste des utilisateurs autorisés ?`)) {
+                return;
+            }
+            
+            try {
+                await db.collection('authorized_users').doc(pseudo).delete();
+                
+                // Sauvegarder le log
+                await saveLog('Utilisateur autorisé supprimé', `Pseudo Discord supprimé: ${pseudo}`);
+                
+                // Recharger la liste
+                loadAuthorizedUsers();
+                
+                alert(`✅ Pseudo Discord "${pseudo}" supprimé avec succès !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+                
+            } catch (error) {
+                console.error('Erreur suppression utilisateur:', error);
+                alert(`❌ Erreur lors de la suppression: ${error.message}`);
+            }
+        }
+
+        // Event listener pour ajouter un utilisateur
+        elements.addUserBtn.addEventListener('click', addAuthorizedUser);
+
+        // Permettre d'ajouter avec Entrée
+        elements.newUserPseudo.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addAuthorizedUser();
+            }
+        });
+
+        // Fonctions de logs
+        async function saveLog(action, details) {
+            try {
+                await db.collection('logs').add({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userEmail: currentUser.email,
+                    discordPseudo: userDiscordPseudo,
+                    action: action,
+                    details: details,
+                    createdAt: new Date()
+                });
+            } catch (error) {
+                console.error('Erreur sauvegarde log:', error);
+            }
+        }
+
+        async function loadLogs() {
+            if (!isAdmin && !isModo) return;
+            
+            try {
+                const logsSnapshot = await db.collection('logs')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                let logsHtml = '';
+                
+                if (logsSnapshot.empty) {
+                    logsHtml = 'Aucun log disponible.';
+                } else {
+                    logsSnapshot.forEach(doc => {
+                        const log = doc.data();
+                        const timestamp = log.timestamp ? log.timestamp.toDate().toLocaleString('fr-FR') : 'Date inconnue';
+                        
+                        logsHtml += `
+                            <div class="log-entry">
+                                <div class="log-timestamp">${timestamp}</div>
+                                <div class="log-user">👤 ${log.discordPseudo} (${log.userEmail})</div>
+                                <div class="log-action">🎯 ${log.action}</div>
+                                ${log.details ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 4px;">${log.details}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+                
+                elements.logs.innerHTML = logsHtml;
+            } catch (error) {
+                console.error('Erreur chargement logs:', error);
+                elements.logs.innerHTML = 'Erreur lors du chargement des logs.';
+            }
+        }
+
+        // Fonction pour obtenir l'URL du serveur
+        function getServerUrl() {
+            return elements.serverUrl.value.trim().replace(/\/$/, '');
+        }
+
+        // Fonction de test de connexion
+        async function testConnection() {
+            const serverUrl = getServerUrl();
+            if (!serverUrl) {
+                alert('❌ Veuillez entrer une URL de serveur');
+                return;
+            }
+
+            elements.testBtn.disabled = true;
+            elements.testBtn.textContent = '🔄 Test en cours...';
+
+            try {
+                const healthResponse = await fetch(`${serverUrl}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!healthResponse.ok) {
+                    throw new Error(`Endpoint /api/health non trouvé (${healthResponse.status})`);
+                }
+
+                const healthData = await healthResponse.json();
+                
+                // Sauvegarder le log
+                await saveLog('Test de connexion', `Connexion réussie vers ${serverUrl}`);
+                
+                alert('✅ Connexion réussie !');
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+
+            } catch (error) {
+                console.error('Erreur de test:', error);
+                await saveLog('Test de connexion', `Échec de connexion vers ${serverUrl}: ${error.message}`);
+                
+                alert(`❌ Erreur de connexion: ${error.message}`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+            } finally {
+                elements.testBtn.disabled = false;
+                elements.testBtn.textContent = '🔧 Tester la connexion';
+            }
+        }
+
+        // Fonctions utilitaires du panel
+        function hideAllViews() {
+            elements.mainView.classList.add('hidden');
+            elements.gamesView.classList.add('hidden');
+            elements.weekView.classList.add('hidden');
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+        }
+
+        function showView(viewName) {
+            hideAllViews();
+            currentView = viewName;
+            
+            if (viewName === 'main') {
+                elements.mainView.classList.remove('hidden');
+                elements.backBtn.classList.add('hidden');
+            } else if (viewName === 'games') {
+                elements.gamesView.classList.remove('hidden');
+                elements.backBtn.classList.remove('hidden');
+            } else if (viewName === 'game-detail') {
+                elements.weekView.classList.remove('hidden');
+                elements.backBtn.classList.remove('hidden');
+            }
+        }
+
+        function updateBadges() {
+            const categoryTitle = selectedCategory ? categories[selectedCategory]?.title : 
+                                 selectedGame ? gameCategories[selectedGame]?.title : 'Non sélectionnée';
+            elements.categoryBadge.textContent = `Catégorie: ${categoryTitle}`;
+            elements.categoryBadge.className = `badge ${selectedCategory || selectedGame ? 'badge-active' : 'badge-inactive'}`;
+
+            elements.weekBadge.textContent = `Option: ${selectedWeek || 'Non sélectionnée'}`;
+            elements.weekBadge.className = `badge ${selectedWeek ? 'badge-active' : 'badge-inactive'}`;
+
+            const channelName = selectedChannel ? availableChannels[selectedChannel] : 'Non sélectionné';
+            elements.channelBadge.textContent = `Salon: ${channelName}`;
+            elements.channelBadge.className = `badge ${selectedChannel ? 'badge-active' : 'badge-inactive'}`;
+        }
+
+        function updateSendButton() {
+            const canSend = selectedImage && selectedChannel && !isLoading;
+            elements.sendBtn.disabled = !canSend;
+            elements.sendBtn.textContent = isLoading ? '⏳ Envoi en cours...' : '📤 Envoyer au bot Discord';
+        }
+
+        function showWeekButtons(categoryKey, isGame = false) {
+            elements.weekButtons.innerHTML = '';
+            
+            const data = isGame ? gameCategories[categoryKey]?.buttons : categories[categoryKey]?.weeks;
+            if (!data) return;
+
+            const itemCount = Object.keys(data).length;
+            let gridClass = 'grid-cols-3';
+            
+            if (itemCount >= 10) {
+                gridClass = 'grid-cols-5';
+            } else if (itemCount >= 6) {
+                gridClass = 'grid-cols-4';
+            } else if (itemCount >= 4) {
+                gridClass = 'grid-cols-3';
+            } else {
+                gridClass = 'grid-cols-2';
+            }
+            
+            elements.weekButtons.className = `grid ${gridClass}`;
+
+            Object.keys(data).forEach(week => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-outline';
+                btn.textContent = week;
+                btn.onclick = () => selectWeek(week, data[week]);
+                elements.weekButtons.appendChild(btn);
+            });
+
+            const title = isGame ? gameCategories[categoryKey]?.title : categories[categoryKey]?.title;
+            elements.weekDescription.textContent = `Sélectionnez une option pour ${title}`;
+            elements.weekView.classList.remove('hidden');
+        }
+
+        function selectWeek(week, imageUrl) {
+            selectedWeek = week;
+            selectedImage = imageUrl;
+            
+            elements.weekButtons.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === week) {
+                    btn.classList.add('active');
+                }
+            });
+
+            elements.previewImage.src = imageUrl;
+            elements.previewView.classList.remove('hidden');
+            elements.channelView.classList.remove('hidden');
+
+            updateBadges();
+            updateSendButton();
+        }
+
+        async function sendToDiscord() {
+            if (!selectedImage || !selectedChannel) return;
+
+            const serverUrl = getServerUrl();
+            if (!serverUrl) {
+                alert('❌ Veuillez configurer l\'URL du serveur');
+                return;
+            }
+
+            isLoading = true;
+            updateSendButton();
+
+            try {
+                const payload = {
+                    channelId: selectedChannel,
+                    content: selectedImage,
+                    metadata: {
+                        category: selectedCategory || selectedGame,
+                        week: selectedWeek,
+                        timestamp: new Date().toISOString(),
+                        user: userDiscordPseudo
+                    }
+                };
+
+                const response = await fetch(`${serverUrl}/api/send-message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur serveur: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                const channelName = availableChannels[selectedChannel];
+                
+                // Sauvegarder le log
+                await saveLog(
+                    'Message envoyé',
+                    `Salon: ${channelName} | Catégorie: ${selectedCategory || selectedGame} | Option: ${selectedWeek} | Message ID: ${result.messageId || 'N/A'}`
+                );
+                
+                alert(`✅ Message envoyé avec succès dans le salon "${channelName}" !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                
+                // Sauvegarder le log d'erreur
+                await saveLog(
+                    'Erreur envoi message',
+                    `Erreur: ${error.message} | Salon: ${availableChannels[selectedChannel]} | Catégorie: ${selectedCategory || selectedGame}`
+                );
+                
+                alert(`❌ Erreur lors de l'envoi: ${error.message}`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+            } finally {
+                isLoading = false;
+                updateSendButton();
+            }
+        }
+
+        // Event listeners du panel
+        elements.testBtn.addEventListener('click', testConnection);
+
+        elements.categorySelect.addEventListener('change', (e) => {
+            const categoryKey = e.target.value;
+            
+            if (categoryKey === 'jeux') {
+                showView('games');
+                selectedCategory = '';
+                selectedGame = '';
+            } else if (categoryKey) {
+                selectedCategory = categoryKey;
+                selectedGame = '';
+                showWeekButtons(categoryKey, false);
+            }
+            
+            selectedWeek = '';
+            selectedImage = '';
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+            updateBadges();
+            updateSendButton();
+        });
+
+        elements.gamesView.addEventListener('click', (e) => {
+            if (e.target.dataset.game) {
+                selectedGame = e.target.dataset.game;
+                selectedCategory = '';
+                showView('game-detail');
+                showWeekButtons(selectedGame, true);
+                
+                selectedWeek = '';
+                selectedImage = '';
+                elements.previewView.classList.add('hidden');
+                elements.channelView.classList.add('hidden');
+                updateBadges();
+                updateSendButton();
+            }
+        });
+
+        elements.channelSelect.addEventListener('change', (e) => {
+            selectedChannel = e.target.value;
+            updateBadges();
+            updateSendButton();
+        });
+
+        elements.sendBtn.addEventListener('click', sendToDiscord);
+
+        elements.backBtn.addEventListener('click', () => {
+            if (currentView === 'game-detail') {
+                showView('games');
+                selectedGame = '';
+            } else if (currentView === 'games') {
+                showView('main');
+                elements.categorySelect.value = '';
+            }
+            
+            selectedWeek = '';
+            selectedImage = '';
+            elements.previewView.classList.add('hidden');
+            elements.channelView.classList.add('hidden');
+            updateBadges();
+            updateSendButton();
+        });
+
+        // Initialisation
+        updateBadges();
+        updateSendButton();
+    </script>
 </body>
 </html>
