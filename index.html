@@ -33,9 +33,9 @@
             gap: 32px;
         }
 
-        /* Login Styles */
-        .login-container {
-            max-width: 400px;
+        /* Login/Register Styles */
+        .auth-container {
+            max-width: 450px;
             margin: 50px auto;
             padding: 40px;
             background: white;
@@ -44,18 +44,39 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .login-header {
+        .auth-header {
             text-align: center;
             margin-bottom: 32px;
         }
 
-        .login-header h1 {
+        .auth-header h1 {
             font-size: 2rem;
             color: #d4af37;
             margin-bottom: 8px;
         }
 
-        .login-form {
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            color: #d4af37;
+            border-bottom-color: #d4af37;
+            font-weight: 500;
+        }
+
+        .auth-form {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -86,10 +107,19 @@
             border-color: #d4af37;
         }
 
-        .login-error {
+        .auth-error {
             background: #fef2f2;
             border: 1px solid #fecaca;
             color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .auth-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
             padding: 12px;
             border-radius: 6px;
             font-size: 0.875rem;
@@ -124,6 +154,15 @@
 
         .admin-badge {
             background: #d4af37;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .modo-badge {
+            background: #10b981;
             color: white;
             padding: 4px 12px;
             border-radius: 16px;
@@ -256,6 +295,21 @@
             background: #b91c1c;
         }
 
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border: 1px solid #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
         /* Select */
         .select {
             width: 100%;
@@ -362,6 +416,44 @@
             color: #374151;
         }
 
+        /* Authorized Users Management */
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: #f9fafb;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .add-user-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
         /* Badges */
         .badges {
             display: flex;
@@ -415,39 +507,37 @@
             font-size: 0.875rem;
             font-family: monospace;
         }
-
-        /* Discord Input */
-        .discord-input {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
-        <div class="login-header">
-            <h1>Godplace Panel</h1>
-            <p>Connexion requise</p>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-header">
+            <h1>🔐 Godplace Panel</h1>
+            <p>Connexion ou inscription requise</p>
         </div>
         
-        <form id="loginForm" class="login-form">
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Connexion</div>
+            <div class="auth-tab" data-tab="register">Inscription</div>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
             <div class="form-group">
-                <label class="form-label" for="email">Email</label>
-                <input type="email" id="email" class="form-input" required>
+                <label class="form-label" for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" class="form-input" required>
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="password">Mot de passe</label>
-                <input type="password" id="password" class="form-input" required>
+                <label class="form-label" for="loginPassword">Mot de passe</label>
+                <input type="password" id="loginPassword" class="form-input" required>
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="discordPseudo">Pseudo Discord</label>
-                <input type="text" id="discordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
+                <label class="form-label" for="loginDiscordPseudo">Pseudo Discord</label>
+                <input type="text" id="loginDiscordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
             </div>
             
             <button type="submit" class="btn btn-primary btn-full">
@@ -455,7 +545,38 @@
             </button>
         </form>
         
-        <div id="loginError" class="login-error hidden"></div>
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form hidden">
+            <div class="form-group">
+                <label class="form-label" for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerPassword">Mot de passe</label>
+                <input type="password" id="registerPassword" class="form-input" minlength="6" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerPasswordConfirm">Confirmer le mot de passe</label>
+                <input type="password" id="registerPasswordConfirm" class="form-input" minlength="6" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="registerDiscordPseudo">Pseudo Discord</label>
+                <input type="text" id="registerDiscordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
+                <small style="color: #6b7280; font-size: 0.75rem;">
+                    ⚠️ Votre pseudo Discord doit être autorisé par un modérateur
+                </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                📝 S'inscrire
+            </button>
+        </form>
+        
+        <div id="authError" class="auth-error hidden"></div>
+        <div id="authSuccess" class="auth-success hidden"></div>
     </div>
 
     <!-- Main Panel -->
@@ -468,6 +589,7 @@
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <span id="adminBadge" class="admin-badge hidden">Admin</span>
+                <span id="modoBadge" class="modo-badge hidden">Modérateur</span>
                 <button id="logoutBtn" class="btn btn-danger">Déconnexion</button>
             </div>
         </div>
@@ -502,6 +624,32 @@
                     <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280;">
                         ⚠️ Assurez-vous que votre serveur a les endpoints <code>/api/health</code> et <code>/api/send-message</code>
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authorized Users Management (Admin/Modo Only) -->
+        <div id="authorizedUsersSection" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title">👥 Gestion des utilisateurs autorisés</h2>
+                <p class="card-description">Gérer la liste des pseudos Discord autorisés</p>
+            </div>
+            <div class="card-content">
+                <div class="add-user-form">
+                    <input 
+                        type="text" 
+                        id="newUserPseudo" 
+                        class="add-user-input" 
+                        placeholder="Pseudo Discord (ex: User#1234)"
+                    >
+                    <button id="addUserBtn" class="btn btn-success">
+                        ➕ Ajouter
+                    </button>
+                </div>
+                <div id="authorizedUsersList" class="user-list">
+                    <div style="padding: 20px; text-align: center; color: #6b7280;">
+                        Chargement des utilisateurs autorisés...
+                    </div>
                 </div>
             </div>
         </div>
@@ -598,10 +746,10 @@
             </div>
         </div>
 
-        <!-- Logs (Admin Only) -->
+        <!-- Logs (Admin/Modo Only) -->
         <div id="logsSection" class="card hidden">
             <div class="card-header">
-                <h2 class="card-title">📋 Logs des actions (Admin)</h2>
+                <h2 class="card-title">📋 Logs des actions</h2>
                 <p class="card-description">Historique des actions effectuées</p>
             </div>
             <div class="card-content">
@@ -618,14 +766,14 @@
     </div>
 
     <script>
-        // Configuration Firebase - REMPLACEZ PAR VOS VRAIES CLÉS
+        // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDuY1T6HaxfDbEcZZYOrpDcD5LPNUTmeUc",
             authDomain: "godplace-dea67.firebaseapp.com",
             projectId: "godplace-dea67",
             storageBucket: "godplace-dea67.firebasestorage.app",
             messagingSenderId: "774010087004",
-            appId: "1:774010087004:web:31346dfbc1b2adfed2e899"
+            appId: "1:774010087004:web:31346dfbc1b2adfed2e899",
             measurementId: "G-HNXY5FDSZK"
         };
 
@@ -634,17 +782,23 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Emails des administrateurs - REMPLACEZ PAR VOS VRAIS EMAILS
+        // Emails des administrateurs et modérateurs
         const ADMIN_EMAILS = [
             "admin1@example.com",
-            "admin2@example.com", 
-            "admin3@example.com"
+            "admin2@example.com"
+        ];
+
+        const MODO_EMAILS = [
+            "modo1@example.com",
+            "modo2@example.com"
         ];
 
         // Variables globales
         let currentUser = null;
         let userDiscordPseudo = '';
         let isAdmin = false;
+        let isModo = false;
+        let currentAuthTab = 'login';
 
         // Structure des données (même que précédemment)
         const categories = {
@@ -811,15 +965,22 @@
 
         // Éléments DOM
         const elements = {
-            loginScreen: document.getElementById('loginScreen'),
+            authScreen: document.getElementById('authScreen'),
             mainPanel: document.getElementById('mainPanel'),
             loginForm: document.getElementById('loginForm'),
-            loginError: document.getElementById('loginError'),
+            registerForm: document.getElementById('registerForm'),
+            authError: document.getElementById('authError'),
+            authSuccess: document.getElementById('authSuccess'),
             userEmail: document.getElementById('userEmail'),
             userDiscord: document.getElementById('userDiscord'),
             adminBadge: document.getElementById('adminBadge'),
+            modoBadge: document.getElementById('modoBadge'),
             logoutBtn: document.getElementById('logoutBtn'),
             logsSection: document.getElementById('logsSection'),
+            authorizedUsersSection: document.getElementById('authorizedUsersSection'),
+            authorizedUsersList: document.getElementById('authorizedUsersList'),
+            newUserPseudo: document.getElementById('newUserPseudo'),
+            addUserBtn: document.getElementById('addUserBtn'),
             mainView: document.getElementById('mainView'),
             gamesView: document.getElementById('gamesView'),
             weekView: document.getElementById('weekView'),
@@ -841,13 +1002,67 @@
         };
 
         // Fonctions d'authentification
+        function checkUserRole(email) {
+            const isAdminUser = ADMIN_EMAILS.includes(email);
+            const isModoUser = MODO_EMAILS.includes(email);
+            return { isAdmin: isAdminUser, isModo: isModoUser };
+        }
+
+        async function checkDiscordPseudoAuthorized(pseudo) {
+            try {
+                const doc = await db.collection('authorized_users').doc(pseudo).get();
+                return doc.exists;
+            } catch (error) {
+                console.error('Erreur vérification pseudo:', error);
+                return false;
+            }
+        }
+
         async function login(email, password, discordPseudo) {
             try {
+                // Vérifier si le pseudo Discord est autorisé
+                const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
+                if (!isAuthorized) {
+                    throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur.');
+                }
+
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 userDiscordPseudo = discordPseudo;
                 
                 // Sauvegarder le pseudo Discord dans localStorage
                 localStorage.setItem('discordPseudo', discordPseudo);
+                
+                return userCredential.user;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function register(email, password, passwordConfirm, discordPseudo) {
+            try {
+                // Vérifications
+                if (password !== passwordConfirm) {
+                    throw new Error('Les mots de passe ne correspondent pas');
+                }
+
+                if (password.length < 6) {
+                    throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+                }
+
+                // Vérifier si le pseudo Discord est autorisé
+                const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
+                if (!isAuthorized) {
+                    throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur pour être ajouté à la liste.');
+                }
+
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                userDiscordPseudo = discordPseudo;
+                
+                // Sauvegarder le pseudo Discord dans localStorage
+                localStorage.setItem('discordPseudo', discordPseudo);
+                
+                // Sauvegarder le log d'inscription
+                await saveLog('Inscription', `Nouvel utilisateur inscrit avec le pseudo Discord: ${discordPseudo}`);
                 
                 return userCredential.user;
             } catch (error) {
@@ -862,38 +1077,270 @@
                 userDiscordPseudo = '';
                 currentUser = null;
                 isAdmin = false;
-                showLoginScreen();
+                isModo = false;
+                showAuthScreen();
             } catch (error) {
                 console.error('Erreur de déconnexion:', error);
             }
         }
 
-        function checkAdminStatus(email) {
-            return ADMIN_EMAILS.includes(email);
-        }
-
-        function showLoginScreen() {
-            elements.loginScreen.classList.remove('hidden');
+        function showAuthScreen() {
+            elements.authScreen.classList.remove('hidden');
             elements.mainPanel.classList.add('hidden');
         }
 
         function showMainPanel() {
-            elements.loginScreen.classList.add('hidden');
+            elements.authScreen.classList.add('hidden');
             elements.mainPanel.classList.remove('hidden');
             
             // Afficher les informations utilisateur
             elements.userEmail.textContent = currentUser.email;
             elements.userDiscord.textContent = `Discord: ${userDiscordPseudo}`;
             
+            // Gérer les badges et permissions
             if (isAdmin) {
                 elements.adminBadge.classList.remove('hidden');
+                elements.modoBadge.classList.add('hidden');
                 elements.logsSection.classList.remove('hidden');
+                elements.authorizedUsersSection.classList.remove('hidden');
                 loadLogs();
+                loadAuthorizedUsers();
+            } else if (isModo) {
+                elements.adminBadge.classList.add('hidden');
+                elements.modoBadge.classList.remove('hidden');
+                elements.logsSection.classList.remove('hidden');
+                elements.authorizedUsersSection.classList.remove('hidden');
+                loadLogs();
+                loadAuthorizedUsers();
             } else {
                 elements.adminBadge.classList.add('hidden');
+                elements.modoBadge.classList.add('hidden');
                 elements.logsSection.classList.add('hidden');
+                elements.authorizedUsersSection.classList.add('hidden');
             }
         }
+
+        // Gestion des onglets d'authentification
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                
+                // Mettre à jour les onglets
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Afficher le bon formulaire
+                if (tabName === 'login') {
+                    elements.loginForm.classList.remove('hidden');
+                    elements.registerForm.classList.add('hidden');
+                } else {
+                    elements.loginForm.classList.add('hidden');
+                    elements.registerForm.classList.remove('hidden');
+                }
+                
+                currentAuthTab = tabName;
+                
+                // Effacer les messages d'erreur/succès
+                elements.authError.classList.add('hidden');
+                elements.authSuccess.classList.add('hidden');
+            });
+        });
+
+        // Event listeners pour l'authentification
+        elements.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const discordPseudo = document.getElementById('loginDiscordPseudo').value;
+            
+            elements.authError.classList.add('hidden');
+            
+            try {
+                await login(email, password, discordPseudo);
+            } catch (error) {
+                elements.authError.textContent = `Erreur de connexion: ${error.message}`;
+                elements.authError.classList.remove('hidden');
+            }
+        });
+
+        elements.registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            const discordPseudo = document.getElementById('registerDiscordPseudo').value;
+            
+            elements.authError.classList.add('hidden');
+            elements.authSuccess.classList.add('hidden');
+            
+            try {
+                await register(email, password, passwordConfirm, discordPseudo);
+                elements.authSuccess.textContent = 'Inscription réussie ! Vous pouvez maintenant vous connecter.';
+                elements.authSuccess.classList.remove('hidden');
+                
+                // Réinitialiser le formulaire
+                elements.registerForm.reset();
+            } catch (error) {
+                elements.authError.textContent = `Erreur d'inscription: ${error.message}`;
+                elements.authError.classList.remove('hidden');
+            }
+        });
+
+        elements.logoutBtn.addEventListener('click', logout);
+
+        // Observer d'authentification
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                const roles = checkUserRole(user.email);
+                isAdmin = roles.isAdmin;
+                isModo = roles.isModo;
+                
+                // Récupérer le pseudo Discord depuis localStorage
+                const savedPseudo = localStorage.getItem('discordPseudo');
+                if (savedPseudo) {
+                    userDiscordPseudo = savedPseudo;
+                }
+                
+                showMainPanel();
+            } else {
+                showAuthScreen();
+            }
+        });
+
+        // Gestion des utilisateurs autorisés
+        async function loadAuthorizedUsers() {
+            if (!isAdmin && !isModo) return;
+            
+            try {
+                const usersSnapshot = await db.collection('authorized_users').orderBy('pseudo').get();
+                
+                let usersHtml = '';
+                
+                if (usersSnapshot.empty) {
+                    usersHtml = '<div style="padding: 20px; text-align: center; color: #6b7280;">Aucun utilisateur autorisé.</div>';
+                } else {
+                    usersSnapshot.forEach(doc => {
+                        const userData = doc.data();
+                        const pseudo = doc.id;
+                        const addedBy = userData.addedBy || 'Inconnu';
+                        const addedAt = userData.addedAt ? userData.addedAt.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+                        
+                        usersHtml += `
+                            <div class="user-item">
+                                <div>
+                                    <div style="font-weight: 500;">${pseudo}</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">
+                                        Ajouté par ${addedBy} le ${addedAt}
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger btn-small" onclick="removeAuthorizedUser('${pseudo}')">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+                
+                elements.authorizedUsersList.innerHTML = usersHtml;
+            } catch (error) {
+                console.error('Erreur chargement utilisateurs autorisés:', error);
+                elements.authorizedUsersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc2626;">Erreur lors du chargement.</div>';
+            }
+        }
+
+        async function addAuthorizedUser() {
+            const pseudo = elements.newUserPseudo.value.trim();
+            
+            if (!pseudo) {
+                alert('Veuillez entrer un pseudo Discord');
+                return;
+            }
+            
+            if (!isAdmin && !isModo) {
+                alert('Vous n\'avez pas les permissions pour ajouter des utilisateurs');
+                return;
+            }
+            
+            try {
+                // Vérifier si l'utilisateur existe déjà
+                const doc = await db.collection('authorized_users').doc(pseudo).get();
+                if (doc.exists) {
+                    alert('Ce pseudo Discord est déjà autorisé');
+                    return;
+                }
+                
+                // Ajouter l'utilisateur
+                await db.collection('authorized_users').doc(pseudo).set({
+                    pseudo: pseudo,
+                    addedBy: userDiscordPseudo,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    addedByEmail: currentUser.email
+                });
+                
+                // Sauvegarder le log
+                await saveLog('Utilisateur autorisé ajouté', `Pseudo Discord ajouté: ${pseudo}`);
+                
+                // Recharger la liste
+                loadAuthorizedUsers();
+                
+                // Vider le champ
+                elements.newUserPseudo.value = '';
+                
+                alert(`✅ Pseudo Discord "${pseudo}" ajouté avec succès !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+                
+            } catch (error) {
+                console.error('Erreur ajout utilisateur:', error);
+                alert(`❌ Erreur lors de l'ajout: ${error.message}`);
+            }
+        }
+
+        async function removeAuthorizedUser(pseudo) {
+            if (!isAdmin && !isModo) {
+                alert('Vous n\'avez pas les permissions pour supprimer des utilisateurs');
+                return;
+            }
+            
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer "${pseudo}" de la liste des utilisateurs autorisés ?`)) {
+                return;
+            }
+            
+            try {
+                await db.collection('authorized_users').doc(pseudo).delete();
+                
+                // Sauvegarder le log
+                await saveLog('Utilisateur autorisé supprimé', `Pseudo Discord supprimé: ${pseudo}`);
+                
+                // Recharger la liste
+                loadAuthorizedUsers();
+                
+                alert(`✅ Pseudo Discord "${pseudo}" supprimé avec succès !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs();
+                }
+                
+            } catch (error) {
+                console.error('Erreur suppression utilisateur:', error);
+                alert(`❌ Erreur lors de la suppression: ${error.message}`);
+            }
+        }
+
+        // Event listener pour ajouter un utilisateur
+        elements.addUserBtn.addEventListener('click', addAuthorizedUser);
+
+        // Permettre d'ajouter avec Entrée
+        elements.newUserPseudo.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addAuthorizedUser();
+            }
+        });
 
         // Fonctions de logs
         async function saveLog(action, details) {
@@ -912,7 +1359,7 @@
         }
 
         async function loadLogs() {
-            if (!isAdmin) return;
+            if (!isAdmin && !isModo) return;
             
             try {
                 const logsSnapshot = await db.collection('logs')
@@ -947,54 +1394,20 @@
             }
         }
 
-        // Event listeners pour l'authentification
-        elements.loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const discordPseudo = document.getElementById('discordPseudo').value;
-            
-            elements.loginError.classList.add('hidden');
-            
-            try {
-                await login(email, password, discordPseudo);
-            } catch (error) {
-                elements.loginError.textContent = `Erreur de connexion: ${error.message}`;
-                elements.loginError.classList.remove('hidden');
-            }
-        });
-
-        elements.logoutBtn.addEventListener('click', logout);
-
-        // Observer d'authentification
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                isAdmin = checkAdminStatus(user.email);
-                
-                // Récupérer le pseudo Discord depuis localStorage
-                const savedPseudo = localStorage.getItem('discordPseudo');
-                if (savedPseudo) {
-                    userDiscordPseudo = savedPseudo;
-                }
-                
-                showMainPanel();
-            } else {
-                showLoginScreen();
-            }
-        });
-
         // Fonction pour obtenir l'URL du serveur
         function getServerUrl() {
             return elements.serverUrl.value.trim().replace(/\/$/, '');
         }
 
         // Fonction de test de connexion
+        async function  '');
+        }
+
+        // Fonction de test de connexion
         async function testConnection() {
             const serverUrl = getServerUrl();
             if (!serverUrl) {
-                elements.logs.textContent = '❌ Veuillez entrer une URL de serveur';
+                alert('❌ Veuillez entrer une URL de serveur');
                 return;
             }
 
@@ -1018,15 +1431,19 @@
                 // Sauvegarder le log
                 await saveLog('Test de connexion', `Connexion réussie vers ${serverUrl}`);
                 
-                if (isAdmin) {
-                    loadLogs(); // Recharger les logs pour les admins
+                alert('✅ Connexion réussie !');
+                
+                if (isAdmin || isModo) {
+                    loadLogs(); // Recharger les logs pour les admins/modos
                 }
 
             } catch (error) {
                 console.error('Erreur de test:', error);
                 await saveLog('Test de connexion', `Échec de connexion vers ${serverUrl}: ${error.message}`);
                 
-                if (isAdmin) {
+                alert(`❌ Erreur de connexion: ${error.message}`);
+                
+                if (isAdmin || isModo) {
                     loadLogs();
                 }
             } finally {
@@ -1035,7 +1452,7 @@
             }
         }
 
-        // Fonctions utilitaires du panel (même que précédemment)
+        // Fonctions utilitaires du panel
         function hideAllViews() {
             elements.mainView.classList.add('hidden');
             elements.gamesView.classList.add('hidden');
@@ -1138,6 +1555,7 @@
 
             const serverUrl = getServerUrl();
             if (!serverUrl) {
+                alert('❌ Veuillez configurer l\'URL du serveur');
                 return;
             }
 
@@ -1178,8 +1596,10 @@
                     `Salon: ${channelName} | Catégorie: ${selectedCategory || selectedGame} | Option: ${selectedWeek} | Message ID: ${result.messageId || 'N/A'}`
                 );
                 
-                if (isAdmin) {
-                    loadLogs(); // Recharger les logs pour les admins
+                alert(`✅ Message envoyé avec succès dans le salon "${channelName}" !`);
+                
+                if (isAdmin || isModo) {
+                    loadLogs(); // Recharger les logs pour les admins/modos
                 }
 
             } catch (error) {
@@ -1191,7 +1611,9 @@
                     `Erreur: ${error.message} | Salon: ${availableChannels[selectedChannel]} | Catégorie: ${selectedCategory || selectedGame}`
                 );
                 
-                if (isAdmin) {
+                alert(`❌ Erreur lors de l'envoi: ${error.message}`);
+                
+                if (isAdmin || isModo) {
                     loadLogs();
                 }
             } finally {
