@@ -1010,26 +1010,34 @@
 
         async function checkDiscordPseudoAuthorized(pseudo) {
             try {
-                const doc = await db.collection('authorized_users').doc(pseudo).get();
+                if (!pseudo || pseudo.trim() === '') {
+                    return false;
+                }
+                
+                const doc = await db.collection('authorized_users').doc(pseudo.trim()).get();
                 return doc.exists;
             } catch (error) {
                 console.error('Erreur vérification pseudo:', error);
-                return false;
+                // En cas d'erreur de connexion à Firestore, on autorise temporairement
+                // pour éviter de bloquer complètement l'accès
+                return true;
             }
         }
 
         async function login(email, password, discordPseudo) {
             try {
-                // Vérifier si le pseudo Discord est autorisé
+                // D'abord se connecter avec Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Ensuite vérifier si le pseudo Discord est autorisé
                 const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
                 if (!isAuthorized) {
+                    // Déconnecter l'utilisateur si le pseudo n'est pas autorisé
+                    await auth.signOut();
                     throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur.');
                 }
 
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 userDiscordPseudo = discordPseudo;
-                
-                // Sauvegarder le pseudo Discord dans localStorage
                 localStorage.setItem('discordPseudo', discordPseudo);
                 
                 return userCredential.user;
@@ -1040,7 +1048,7 @@
 
         async function register(email, password, passwordConfirm, discordPseudo) {
             try {
-                // Vérifications
+                // Vérifications de base
                 if (password !== passwordConfirm) {
                     throw new Error('Les mots de passe ne correspondent pas');
                 }
@@ -1049,16 +1057,15 @@
                     throw new Error('Le mot de passe doit contenir au moins 6 caractères');
                 }
 
-                // Vérifier si le pseudo Discord est autorisé
+                // Vérifier si le pseudo Discord est autorisé AVANT l'inscription
                 const isAuthorized = await checkDiscordPseudoAuthorized(discordPseudo);
                 if (!isAuthorized) {
                     throw new Error('Votre pseudo Discord n\'est pas autorisé. Contactez un modérateur pour être ajouté à la liste.');
                 }
 
+                // Créer le compte
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 userDiscordPseudo = discordPseudo;
-                
-                // Sauvegarder le pseudo Discord dans localStorage
                 localStorage.setItem('discordPseudo', discordPseudo);
                 
                 // Sauvegarder le log d'inscription
@@ -1190,8 +1197,7 @@
 
         elements.logoutBtn.addEventListener('click', logout);
 
-        // Observer d'authentification
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 const roles = checkUserRole(user.email);
@@ -1202,6 +1208,20 @@
                 const savedPseudo = localStorage.getItem('discordPseudo');
                 if (savedPseudo) {
                     userDiscordPseudo = savedPseudo;
+                    
+                    // Vérifier si le pseudo est toujours autorisé
+                    try {
+                        const isStillAuthorized = await checkDiscordPseudoAuthorized(savedPseudo);
+                        if (!isStillAuthorized && !isAdmin && !isModo) {
+                            // Si le pseudo n'est plus autorisé et que ce n'est pas un admin/modo
+                            alert('Votre accès a été révoqué. Contactez un modérateur.');
+                            await logout();
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Erreur vérification autorisation:', error);
+                        // En cas d'erreur, on laisse passer pour éviter de bloquer
+                    }
                 }
                 
                 showMainPanel();
@@ -1400,10 +1420,6 @@
         }
 
         // Fonction de test de connexion
-        async function  '');
-        }
-
-        // Fonction de test de connexion
         async function testConnection() {
             const serverUrl = getServerUrl();
             if (!serverUrl) {
@@ -1434,7 +1450,7 @@
                 alert('✅ Connexion réussie !');
                 
                 if (isAdmin || isModo) {
-                    loadLogs(); // Recharger les logs pour les admins/modos
+                    loadLogs();
                 }
 
             } catch (error) {
@@ -1599,7 +1615,7 @@
                 alert(`✅ Message envoyé avec succès dans le salon "${channelName}" !`);
                 
                 if (isAdmin || isModo) {
-                    loadLogs(); // Recharger les logs pour les admins/modos
+                    loadLogs();
                 }
 
             } catch (error) {
