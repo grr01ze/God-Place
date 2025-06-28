@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Godplace Panel</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -25,6 +31,104 @@
             display: flex;
             flex-direction: column;
             gap: 32px;
+        }
+
+        /* Login Styles */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 8px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            ring: 2px solid #d4af37;
+            border-color: #d4af37;
+        }
+
+        .login-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .user-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-email {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .user-discord {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .admin-badge {
+            background: #d4af37;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
         /* Header */
@@ -142,6 +246,16 @@
             background: #059669;
         }
 
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border: 1px solid #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
         /* Select */
         .select {
             width: 100%;
@@ -172,9 +286,28 @@
             grid-template-columns: repeat(3, 1fr);
         }
 
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
         @media (max-width: 768px) {
             .grid-cols-2,
-            .grid-cols-3 {
+            .grid-cols-3,
+            .grid-cols-4,
+            .grid-cols-5 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-cols-2,
+            .grid-cols-3,
+            .grid-cols-4,
+            .grid-cols-5 {
                 grid-template-columns: 1fr;
             }
         }
@@ -202,8 +335,31 @@
             font-size: 0.875rem;
             color: #6b5e00;
             white-space: pre-wrap;
-            max-height: 160px;
+            max-height: 300px;
             overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #d4af37;
+        }
+
+        .log-timestamp {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .log-user {
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+        .log-action {
+            color: #374151;
         }
 
         /* Badges */
@@ -259,10 +415,63 @@
             font-size: 0.875rem;
             font-family: monospace;
         }
+
+        /* Discord Input */
+        .discord-input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-header">
+            <h1>🔐 Godplace Panel</h1>
+            <p>Connexion requise</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input type="password" id="password" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="discordPseudo">Pseudo Discord</label>
+                <input type="text" id="discordPseudo" class="form-input" placeholder="VotrePseudo#1234" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                🚀 Se connecter
+            </button>
+        </form>
+        
+        <div id="loginError" class="login-error hidden"></div>
+    </div>
+
+    <!-- Main Panel -->
+    <div id="mainPanel" class="container hidden">
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-details">
+                <div class="user-email" id="userEmail"></div>
+                <div class="user-discord" id="userDiscord"></div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span id="adminBadge" class="admin-badge hidden">Admin</span>
+                <button id="logoutBtn" class="btn btn-danger">Déconnexion</button>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="header">
             <h1>Godplace Panel</h1>
@@ -346,11 +555,11 @@
         <!-- Week Selection -->
         <div id="weekView" class="card hidden">
             <div class="card-header">
-                <h2 class="card-title">2. Choisissez une semaine</h2>
-                <p id="weekDescription" class="card-description">Sélectionnez une semaine</p>
+                <h2 class="card-title">2. Choisissez une option</h2>
+                <p id="weekDescription" class="card-description">Sélectionnez une option</p>
             </div>
             <div class="card-content">
-                <div id="weekButtons" class="grid grid-cols-3"></div>
+                <div id="weekButtons" class="grid grid-cols-5"></div>
             </div>
         </div>
 
@@ -389,25 +598,53 @@
             </div>
         </div>
 
-        <!-- Logs -->
-        <div class="card">
+        <!-- Logs (Admin Only) -->
+        <div id="logsSection" class="card hidden">
             <div class="card-header">
-                <h2 class="card-title">Logs des actions</h2>
+                <h2 class="card-title">📋 Logs des actions (Admin)</h2>
+                <p class="card-description">Historique des actions effectuées</p>
             </div>
             <div class="card-content">
-                <div id="logs" class="logs">Aucune action pour l'instant.</div>
+                <div id="logs" class="logs">Chargement des logs...</div>
             </div>
         </div>
 
         <!-- Status Badges -->
         <div class="badges">
             <span id="categoryBadge" class="badge badge-inactive">Catégorie: Non sélectionnée</span>
-            <span id="weekBadge" class="badge badge-inactive">Semaine: Non sélectionnée</span>
+            <span id="weekBadge" class="badge badge-inactive">Option: Non sélectionnée</span>
             <span id="channelBadge" class="badge badge-inactive">Salon: Non sélectionné</span>
         </div>
     </div>
 
     <script>
+        // Configuration Firebase - REMPLACEZ PAR VOS VRAIES CLÉS
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_PROJECT_ID.appspot.com",
+            messagingSenderId: "VOTRE_SENDER_ID",
+            appId: "VOTRE_APP_ID"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Emails des administrateurs - REMPLACEZ PAR VOS VRAIS EMAILS
+        const ADMIN_EMAILS = [
+            "admin1@example.com",
+            "admin2@example.com", 
+            "admin3@example.com"
+        ];
+
+        // Variables globales
+        let currentUser = null;
+        let userDiscordPseudo = '';
+        let isAdmin = false;
+
         // Structure des données (même que précédemment)
         const categories = {
             mondeEnDeclin: {
@@ -520,17 +757,35 @@
             grilleDeLumiere: {
                 title: "Grille de lumière",
                 buttons: {
-                    "G1 Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365726955667652608/FICHES_SPECIFIQUES_PETIT_FORMAT_-_49.png",
-                    "G1 Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365726985450347310/FICHES_SPECIFIQUES_PETIT_FORMAT_-_50.png",
-                    "G1 Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727015886677760/FICHES_SPECIFIQUES_PETIT_FORMAT_-_51.png"
+                    "Grille de lumière 1": "https://media.discordapp.net/attachments/1365412596655853699/1381746959072628826/PLATEAUX_CODES_SACRES_-_3.png",
+                    "Grille de lumière 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747211351883867/PLATEAUX_CODES_SACRES_-_6.png",
+                    "Grille de lumière 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747610108432527/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747659450355836/PLATEAUX_CODES_SACRES_-_12.png",
+                    "Grille de lumière 5": "https://media.discordapp.net/attachments/1365412596655853699/1381747879051395174/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748077844627617/PLATEAUX_CODES_SACRES_-_18.png",
+                    "Grille de lumière 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748456841810021/PLATEAUX_CODES_SACRES.png",
+                    "Grille de lumière 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748553675964709/PLATEAUX_CODES_SACRES_-_24.png",
+                    "Grille de lumière 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748623842218034/PLATEAUX_CODES_SACRES_-_28.png",
+                    "Grille de lumière 10": "https://media.discordapp.net/attachments/1365412596655853699/1381748876700291162/PLATEAUX_CODES_SACRES.png"
                 }
             },
             eclaireurs: {
                 title: "Éclaireurs",
                 buttons: {
-                    "Éclaireurs Semaine 1": "https://media.discordapp.net/attachments/1365412596655853699/1365727045944965234/FICHES_SPECIFIQUES_PETIT_FORMAT_-_52.png",
-                    "Éclaireurs Semaine 2": "https://media.discordapp.net/attachments/1365412596655853699/1365727074408728320/FICHES_SPECIFIQUES_PETIT_FORMAT_-_53.png",
-                    "Éclaireurs Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365727103434525440/FICHES_SPECIFIQUES_PETIT_FORMAT_-_54.png"
+                    "Éclaireurs 1": "https://media.discordapp.net/attachments/1365412596655853699/1381747093592342528/PLATEAUX_CODES_SACRES_-_4.png",
+                    "Éclaireurs 2": "https://media.discordapp.net/attachments/1365412596655853699/1381747251466211559/PLATEAUX_CODES_SACRES_-_7.png",
+                    "Éclaireurs 3": "https://media.discordapp.net/attachments/1365412596655853699/1381747367199510549/PLATEAUX_CODES_SACRES_-_10.png",
+                    "Éclaireurs 4": "https://media.discordapp.net/attachments/1365412596655853699/1381747699107234003/PLATEAUX_CODES_SACRES_-_13.png",
+                    "Éclaireurs 5": "https://media.discordapp.net/attachments/1365412596655853699/1381748030075568199/PLATEAUX_CODES_SACRES_-_16.png",
+                    "Éclaireurs 6": "https://media.discordapp.net/attachments/1365412596655853699/1381748122304249896/PLATEAUX_CODES_SACRES_-_19.png",
+                    "Éclaireurs 7": "https://media.discordapp.net/attachments/1365412596655853699/1381748505860767805/PLATEAUX_CODES_SACRES_-_22.png",
+                    "Éclaireurs 8": "https://media.discordapp.net/attachments/1365412596655853699/1381748588476104835/PLATEAUX_CODES_SACRES_-_25.png",
+                    "Éclaireurs 9": "https://media.discordapp.net/attachments/1365412596655853699/1381748653026312272/PLATEAUX_CODES_SACRES_-_27.png",
+                    "Éclaireurs 10": "https://media.discordapp.net/attachments/1365412596655853699/1381749325507465226/PLATEAUX_CODES_SACRES_-_31.png",
+                    "Éclaireurs 11": "https://media.discordapp.net/attachments/1365412596655853699/1381749407732469922/PLATEAUX_CODES_SACRES_-_36.png",
+                    "Éclaireurs 12": "https://media.discordapp.net/attachments/1365412596655853699/1381749515937120257/PLATEAUX_CODES_SACRES_-_40.png",
+                    "Éclaireurs 13": "https://media.discordapp.net/attachments/1365412596655853699/1381749593733071009/PLATEAUX_CODES_SACRES.png",
+                    "Éclaireurs 14": "https://media.discordapp.net/attachments/1365412596655853699/1381749662737891459/PLATEAUX_CODES_SACRES_-_45.png"
                 }
             }
         };
@@ -544,7 +799,7 @@
             "1365417832774635540": "Je préfères G2"
         };
 
-        // Variables d'état
+        // Variables d'état du panel
         let currentView = 'main';
         let selectedCategory = '';
         let selectedGame = '';
@@ -555,6 +810,15 @@
 
         // Éléments DOM
         const elements = {
+            loginScreen: document.getElementById('loginScreen'),
+            mainPanel: document.getElementById('mainPanel'),
+            loginForm: document.getElementById('loginForm'),
+            loginError: document.getElementById('loginError'),
+            userEmail: document.getElementById('userEmail'),
+            userDiscord: document.getElementById('userDiscord'),
+            adminBadge: document.getElementById('adminBadge'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            logsSection: document.getElementById('logsSection'),
             mainView: document.getElementById('mainView'),
             gamesView: document.getElementById('gamesView'),
             weekView: document.getElementById('weekView'),
@@ -575,9 +839,154 @@
             channelBadge: document.getElementById('channelBadge')
         };
 
+        // Fonctions d'authentification
+        async function login(email, password, discordPseudo) {
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                userDiscordPseudo = discordPseudo;
+                
+                // Sauvegarder le pseudo Discord dans localStorage
+                localStorage.setItem('discordPseudo', discordPseudo);
+                
+                return userCredential.user;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('discordPseudo');
+                userDiscordPseudo = '';
+                currentUser = null;
+                isAdmin = false;
+                showLoginScreen();
+            } catch (error) {
+                console.error('Erreur de déconnexion:', error);
+            }
+        }
+
+        function checkAdminStatus(email) {
+            return ADMIN_EMAILS.includes(email);
+        }
+
+        function showLoginScreen() {
+            elements.loginScreen.classList.remove('hidden');
+            elements.mainPanel.classList.add('hidden');
+        }
+
+        function showMainPanel() {
+            elements.loginScreen.classList.add('hidden');
+            elements.mainPanel.classList.remove('hidden');
+            
+            // Afficher les informations utilisateur
+            elements.userEmail.textContent = currentUser.email;
+            elements.userDiscord.textContent = `Discord: ${userDiscordPseudo}`;
+            
+            if (isAdmin) {
+                elements.adminBadge.classList.remove('hidden');
+                elements.logsSection.classList.remove('hidden');
+                loadLogs();
+            } else {
+                elements.adminBadge.classList.add('hidden');
+                elements.logsSection.classList.add('hidden');
+            }
+        }
+
+        // Fonctions de logs
+        async function saveLog(action, details) {
+            try {
+                await db.collection('logs').add({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userEmail: currentUser.email,
+                    discordPseudo: userDiscordPseudo,
+                    action: action,
+                    details: details,
+                    createdAt: new Date()
+                });
+            } catch (error) {
+                console.error('Erreur sauvegarde log:', error);
+            }
+        }
+
+        async function loadLogs() {
+            if (!isAdmin) return;
+            
+            try {
+                const logsSnapshot = await db.collection('logs')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                let logsHtml = '';
+                
+                if (logsSnapshot.empty) {
+                    logsHtml = 'Aucun log disponible.';
+                } else {
+                    logsSnapshot.forEach(doc => {
+                        const log = doc.data();
+                        const timestamp = log.timestamp ? log.timestamp.toDate().toLocaleString('fr-FR') : 'Date inconnue';
+                        
+                        logsHtml += `
+                            <div class="log-entry">
+                                <div class="log-timestamp">${timestamp}</div>
+                                <div class="log-user">👤 ${log.discordPseudo} (${log.userEmail})</div>
+                                <div class="log-action">🎯 ${log.action}</div>
+                                ${log.details ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 4px;">${log.details}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+                
+                elements.logs.innerHTML = logsHtml;
+            } catch (error) {
+                console.error('Erreur chargement logs:', error);
+                elements.logs.innerHTML = 'Erreur lors du chargement des logs.';
+            }
+        }
+
+        // Event listeners pour l'authentification
+        elements.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const discordPseudo = document.getElementById('discordPseudo').value;
+            
+            elements.loginError.classList.add('hidden');
+            
+            try {
+                await login(email, password, discordPseudo);
+            } catch (error) {
+                elements.loginError.textContent = `Erreur de connexion: ${error.message}`;
+                elements.loginError.classList.remove('hidden');
+            }
+        });
+
+        elements.logoutBtn.addEventListener('click', logout);
+
+        // Observer d'authentification
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                isAdmin = checkAdminStatus(user.email);
+                
+                // Récupérer le pseudo Discord depuis localStorage
+                const savedPseudo = localStorage.getItem('discordPseudo');
+                if (savedPseudo) {
+                    userDiscordPseudo = savedPseudo;
+                }
+                
+                showMainPanel();
+            } else {
+                showLoginScreen();
+            }
+        });
+
         // Fonction pour obtenir l'URL du serveur
         function getServerUrl() {
-            return elements.serverUrl.value.trim().replace(/\/$/, ''); // Enlève le slash final
+            return elements.serverUrl.value.trim().replace(/\/$/, '');
         }
 
         // Fonction de test de connexion
@@ -590,10 +999,8 @@
 
             elements.testBtn.disabled = true;
             elements.testBtn.textContent = '🔄 Test en cours...';
-            elements.logs.textContent = `Test de connexion vers ${serverUrl}...`;
 
             try {
-                // Test de l'endpoint health
                 const healthResponse = await fetch(`${serverUrl}/api/health`, {
                     method: 'GET',
                     headers: {
@@ -606,18 +1013,28 @@
                 }
 
                 const healthData = await healthResponse.json();
-                elements.logs.textContent = `✅ Connexion réussie !\n\nStatut: ${healthData.status}\nBot: ${healthData.bot}\nServeurs: ${healthData.guilds || 'N/A'}\nTimestamp: ${healthData.timestamp}`;
+                
+                // Sauvegarder le log
+                await saveLog('Test de connexion', `Connexion réussie vers ${serverUrl}`);
+                
+                if (isAdmin) {
+                    loadLogs(); // Recharger les logs pour les admins
+                }
 
             } catch (error) {
                 console.error('Erreur de test:', error);
-                elements.logs.textContent = `❌ Erreur de connexion :\n${error.message}\n\nVérifiez :\n• L'URL du serveur\n• Que le serveur est en ligne\n• Que l'endpoint /api/health existe`;
+                await saveLog('Test de connexion', `Échec de connexion vers ${serverUrl}: ${error.message}`);
+                
+                if (isAdmin) {
+                    loadLogs();
+                }
             } finally {
                 elements.testBtn.disabled = false;
                 elements.testBtn.textContent = '🔧 Tester la connexion';
             }
         }
 
-        // Fonctions utilitaires (même que précédemment)
+        // Fonctions utilitaires du panel (même que précédemment)
         function hideAllViews() {
             elements.mainView.classList.add('hidden');
             elements.gamesView.classList.add('hidden');
@@ -648,7 +1065,7 @@
             elements.categoryBadge.textContent = `Catégorie: ${categoryTitle}`;
             elements.categoryBadge.className = `badge ${selectedCategory || selectedGame ? 'badge-active' : 'badge-inactive'}`;
 
-            elements.weekBadge.textContent = `Semaine: ${selectedWeek || 'Non sélectionnée'}`;
+            elements.weekBadge.textContent = `Option: ${selectedWeek || 'Non sélectionnée'}`;
             elements.weekBadge.className = `badge ${selectedWeek ? 'badge-active' : 'badge-inactive'}`;
 
             const channelName = selectedChannel ? availableChannels[selectedChannel] : 'Non sélectionné';
@@ -668,6 +1085,21 @@
             const data = isGame ? gameCategories[categoryKey]?.buttons : categories[categoryKey]?.weeks;
             if (!data) return;
 
+            const itemCount = Object.keys(data).length;
+            let gridClass = 'grid-cols-3';
+            
+            if (itemCount >= 10) {
+                gridClass = 'grid-cols-5';
+            } else if (itemCount >= 6) {
+                gridClass = 'grid-cols-4';
+            } else if (itemCount >= 4) {
+                gridClass = 'grid-cols-3';
+            } else {
+                gridClass = 'grid-cols-2';
+            }
+            
+            elements.weekButtons.className = `grid ${gridClass}`;
+
             Object.keys(data).forEach(week => {
                 const btn = document.createElement('button');
                 btn.className = 'btn btn-outline';
@@ -677,7 +1109,7 @@
             });
 
             const title = isGame ? gameCategories[categoryKey]?.title : categories[categoryKey]?.title;
-            elements.weekDescription.textContent = `Sélectionnez une semaine pour ${title}`;
+            elements.weekDescription.textContent = `Sélectionnez une option pour ${title}`;
             elements.weekView.classList.remove('hidden');
         }
 
@@ -705,13 +1137,11 @@
 
             const serverUrl = getServerUrl();
             if (!serverUrl) {
-                elements.logs.textContent = '❌ Veuillez configurer l\'URL du serveur';
                 return;
             }
 
             isLoading = true;
             updateSendButton();
-            elements.logs.textContent = 'Envoi en cours...';
 
             try {
                 const payload = {
@@ -720,12 +1150,10 @@
                     metadata: {
                         category: selectedCategory || selectedGame,
                         week: selectedWeek,
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        user: userDiscordPseudo
                     }
                 };
-
-                console.log('Envoi vers:', `${serverUrl}/api/send-message`);
-                console.log('Payload:', payload);
 
                 const response = await fetch(`${serverUrl}/api/send-message`, {
                     method: 'POST',
@@ -742,26 +1170,36 @@
 
                 const result = await response.json();
                 const channelName = availableChannels[selectedChannel];
-                elements.logs.textContent = `✅ Message envoyé avec succès dans le salon "${channelName}".\nID du message: ${result.messageId || 'N/A'}`;
+                
+                // Sauvegarder le log
+                await saveLog(
+                    'Message envoyé',
+                    `Salon: ${channelName} | Catégorie: ${selectedCategory || selectedGame} | Option: ${selectedWeek} | Message ID: ${result.messageId || 'N/A'}`
+                );
+                
+                if (isAdmin) {
+                    loadLogs(); // Recharger les logs pour les admins
+                }
 
             } catch (error) {
                 console.error('Erreur:', error);
                 
-                let errorMessage = error.message;
-                if (error.message.includes('404')) {
-                    errorMessage = `❌ Endpoint non trouvé.\n\nVérifiez que votre serveur a bien l'endpoint:\n${serverUrl}/api/send-message\n\nErreur: ${error.message}`;
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage = `❌ Impossible de contacter le serveur.\n\nVérifiez :\n• L'URL du serveur\n• Que le serveur est en ligne\n• Les paramètres CORS\n\nErreur: ${error.message}`;
-                }
+                // Sauvegarder le log d'erreur
+                await saveLog(
+                    'Erreur envoi message',
+                    `Erreur: ${error.message} | Salon: ${availableChannels[selectedChannel]} | Catégorie: ${selectedCategory || selectedGame}`
+                );
                 
-                elements.logs.textContent = errorMessage;
+                if (isAdmin) {
+                    loadLogs();
+                }
             } finally {
                 isLoading = false;
                 updateSendButton();
             }
         }
 
-        // Event listeners
+        // Event listeners du panel
         elements.testBtn.addEventListener('click', testConnection);
 
         elements.categorySelect.addEventListener('change', (e) => {
