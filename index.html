@@ -604,30 +604,6 @@
                 <button id="testBtn" class="btn btn-test">🔧 Tester la connexion</button>
             </div>
         </div>
-
-        <!-- Configuration URL -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">⚙️ Configuration du serveur</h2>
-                <p class="card-description">Configurez l'URL de votre serveur bot</p>
-            </div>
-            <div class="card-content">
-                <div class="url-config">
-                    <label for="serverUrl" style="display: block; margin-bottom: 8px; font-weight: 500;">URL du serveur :</label>
-                    <input 
-                        type="text" 
-                        id="serverUrl" 
-                        class="url-input" 
-                        value="https://bot-production-e4ec.up.railway.app"
-                        placeholder="https://votre-serveur.railway.app"
-                    >
-                    <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280;">
-                        ⚠️ Assurez-vous que votre serveur a les endpoints <code>/api/health</code> et <code>/api/send-message</code>
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <!-- Authorized Users Management (Admin/Modo Only) -->
         <div id="authorizedUsersSection" class="card hidden">
             <div class="card-header">
@@ -668,6 +644,7 @@
             <div class="card-content">
                 <select id="categorySelect" class="select">
                     <option value="">-- Sélectionnez une catégorie --</option>
+                    <option value="Bandeaux">Bandeaux</option>
                     <option value="mondeEnDeclin">Le Monde en Déclin</option>
                     <option value="gagneCoeurChrist">Gagne le cœur du Christ</option>
                     <option value="loueAvecTonArt">Loue avec ton art</option>
@@ -818,6 +795,41 @@
                     "Semaine 3": "https://media.discordapp.net/attachments/1365412596655853699/1365725725654782062/FICHES_SPECIFIQUES_PETIT_FORMAT_-_15.png"
                 }
             },
+            Bandeaux: {
+                title: "Bandeaux",
+                weeks: {
+                    "à vos solutions": "https://media.discordapp.net/attachments/1365412596655853699/1365449720411062312/BANDEAUX_-_27.png?ex=686110e6&is=685fbf66&hm=b6ca12e3923b59f220314433a24aba78d6df792d36e6053288b38cd649ad6f52&=&format=webp&quality=lossless",
+                    "Place au challenge": "https://media.discordapp.net/attachments/1365412596655853699/1365449778531537029/BANDEAUX_-_19.png?ex=686110f4&is=685fbf74&hm=1bdf3b55f0d36cfb6f99cbc82efdc361deb0579beb0f261787bd1c25a7384120&=&format=webp&quality=lossless",
+                    "Place à la victoire": "https://media.discordapp.net/attachments/1365412596655853699/1365449855157407754/BANDEAUX_-_29.png?ex=68611106&is=685fbf86&hm=978c640f9015c938d41cd8a120a353f14fb5ebcc3f66135b3494370796f1b1a2&=&format=webp&quality=lossless",
+                    "Team oui ou team non": "https://media.discordapp.net/attachments/1365412596655853699/1365449952163266712/BANDEAUX_-_31.png?ex=6861111d&is=685fbf9d&hm=fc43866bbc561b5d32d46d361739113c1aeba390a597ff6fb902f66f7de9a0df&=&format=webp&quality=lossless",
+                    "Préparez votre défense": "https://media.discordapp.net/attachments/1365412596655853699/1365450022350749717/BANDEAUX_-_23.png?ex=6861112e&is=685fbfae&hm=d172e03aca5dc856edf71567762e2f30b3f6c8b3828e58dea6555d0566d4993e&=&format=webp&quality=lossless",
+                    "face à face": "https://media.discordapp.net/attachments/1365412596655853699/1365450102835249172/BANDEAUX_-_33.png?ex=68611141&is=685fbfc1&hm=485d9573a4f4720799b145c9d921fb06cf59942b591222625e7ad75646565e02&=&format=webp&quality=lossless",
+                    "à vos votes": "https://media.discordapp.net/attachments/1365412596655853699/1365450176457609216/BANDEAUX_-_35.png?ex=68611152&is=685fbfd2&hm=fb47886c139217c91532b47d0d35583de60005f18890327cc0249ce90aedb767&=&format=webp&quality=lossless",
+                    "Installez-vous": "https://media.discordapp.net/attachments/1365412596655853699/1365450239045144576/BANDEAUX_-_36.png?ex=68611161&is=685fbfe1&hm=2c61c2031281e2347d1276ca7158398768bd5ad1b54a7eeddbe79e5fd70e9784&=&format=webp&quality=lossless",
+                    "on papote": "https://media.discordapp.net/attachments/1365412596655853699/1365450337854427267/BANDEAUX_-_37.png?ex=68611179&is=685fbff9&hm=413155e5073981f9a57273c025fb3b9ef6bbd84ec2798b287457a8154bf89ad8&=&format=webp&quality=lossless",
+                    "à vos Bibles": "https://media.discordapp.net/attachments/1365412596655853699/1365450502476795945/BANDEAUX_-_39.png?ex=686111a0&is=685fc020&hm=ba868e03efeb6b065277dc769c9f6252cb637f586b5b99e01a8cbb365cbb30d3&=&format=webp&quality=lossless",
+                    "Moment d'intimité": "https://media.discordapp.net/attachments/1365412596655853699/1365450568268644495/BANDEAUX_-_40.png?ex=686111b0&is=685fc030&hm=ece7a3a18b3113f48f490bc11ee4b22d265f9ff9d3a5781023e266e9c7dff6a6&=&format=webp&quality=lossless",
+                    "mise en commun": "https://media.discordapp.net/attachments/1365412596655853699/1365450629228527726/BANDEAUX_-_41.png?ex=686111be&is=685fc03e&hm=b50282a925e3d6eb35dd8037124ba95089b2b5826ae0823b953bbb6fac4a2a89&=&format=webp&quality=lossless",
+                    "Vos écrits prennent vie": "https://media.discordapp.net/attachments/1365412596655853699/1365450672073474198/BANDEAUX_-_42.png?ex=686111c9&is=685fc049&hm=5e38c9f27b43628c74860c92df3e86317b6a59de4826afefe4465024e982ba18&=&format=webp&quality=lossless",
+                    "Confesse ton péché": "https://media.discordapp.net/attachments/1365412596655853699/1365450773390950471/BANDEAUX_-_44.png?ex=686111e1&is=685fc061&hm=5b83ec97255b612153c4f50dc91be5af392a8e9a1975ce79a0ac7316c5b4b976&=&format=webp&quality=lossless",
+                    "Annonce des péchés": "https://media.discordapp.net/attachments/1365412596655853699/1365450855222083706/BANDEAUX_-_45.png?ex=686111f4&is=685fc074&hm=2048fc07dea32cda3f5b611b3ef875dbabe093374c10fc286dc277ae0c4b9a4c&=&format=webp&quality=lossless",
+                    "Temps d'échange": "https://media.discordapp.net/attachments/1365412596655853699/1365450914202255370/BANDEAUX_-_56.png?ex=68611202&is=685fc082&hm=d31ea92d12a0177e4b271997224ad4d1cc5f1c68b52daf31b4185840da000a90&=&format=webp&quality=lossless",
+                    "Place aux solutions": "https://media.discordapp.net/attachments/1365412596655853699/1365450980346429500/BANDEAUX_-_47.png?ex=68611212&is=685fc092&hm=d0dc50ba6c57a87a2f3eaa3ef77160df2a189605357c12d14fad00871782995a&=&format=webp&quality=lossless",
+                    "Annonce du thème": "https://media.discordapp.net/attachments/1365412596655853699/1365451034859667537/BANDEAUX_-_49.png?ex=6861121f&is=685fc09f&hm=11c5b3fc107c24feab72afaff69369a7fd1e34ae33226eed8dc1e01e238ba96e&=&format=webp&quality=lossless",
+                    "Montrez vos talents": "https://media.discordapp.net/attachments/1365412596655853699/1365451093710078093/BANDEAUX_-_50.png?ex=6861122d&is=685fc0ad&hm=101865ae85ee97704f169172b906a2ec91a449370a57385c4bd2e1dac2cdf463&=&format=webp&quality=lossless",
+                    "Expliquez vos choix": "https://media.discordapp.net/attachments/1365412596655853699/1365451188635439214/BANDEAUX_-_51.png?ex=68611244&is=685fc0c4&hm=79089dc53975317086323bf1ac722345fbcf5cbe534960ce4cfa3c7b68521ed3&=&format=webp&quality=lossless",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                    "bientôt": "",
+                }
+            },
             loueAvecTonArt: {
                 title: "Loue avec ton art",
                 weeks: {
@@ -946,12 +958,18 @@
         };
 
         const availableChannels = {
-            "1378679774742056974": "Salon Grille de lumière",
-            "1378680922928320653": "Salon Éclaireurs",
-            "1325922071473295411": "Salon Général",
-            "1378679000000000001": "Salon Annonces",
+            "1378679774742056974": "Grille de lumière",
+            "1378680922928320653": "Éclaireurs",
+            "1325922071473295411": "Entre frères et soeurs en christ",
+            "1378679000000000001": "Annonces",
             "1365417738436087909": "Je préfères G1",
-            "1365417832774635540": "Je préfères G2"
+            "1365417832774635540": "Je préfères G2",
+            "1369042309966073856": "Savoir chrétien G1",
+            "1369042329393954887": "Savoir chrétien G2",
+            "1369042347492380693": "Savoir chrétien G3",
+            "1325922077454110731": "Carnet chretien",
+            "1325922087143080056": "Loue avec ton art",
+            "1325922084739612794": "Chaîne sacrée"
         };
 
         // Variables d'état du panel
