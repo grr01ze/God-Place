@@ -12,8 +12,8 @@
       padding: 2em;
     }
     h1, h2 {
-      color: gold;
-      border-bottom: 3px solid gold;
+      color: #FFD700;
+      border-bottom: 3px solid #FFD700;
       display: inline-block;
       padding-bottom: 0.3em;
       margin-bottom: 1em;
@@ -22,15 +22,16 @@
       font-size: 1.2em;
       padding: 0.5em 1em;
       margin: 0.5em;
-      border: 2px solid gold;
+      border: 2px solid #FFD700;
       border-radius: 8px;
     }
     button {
-      background-color: #FFD700;
+      background: #FFD700;
+      color: black;
       cursor: pointer;
     }
     button:hover {
-      background: #d4af37;
+      background: #e6c200;
     }
     #status {
       margin-top: 1em;
@@ -68,7 +69,7 @@
     ];
 
     function afficherMot() {
-  return motSecret.split('').map(l => lettresTrouvees.includes(l) ? l : '_').join(' ');
+      return motSecret.split('').map(l => lettresTrouvees.includes(l) ? l : '_').join(' ');
     }
 
     function lancerJeu() {
@@ -82,7 +83,7 @@
       document.getElementById('lettre').disabled = false;
       document.querySelector('button[onclick="verifierLettre()"]').disabled = false;
       document.getElementById('status').textContent = '';
-      envoyerMessageDiscord(` **Nouveau Cruxifier lancé !**\nMot mystère : ${afficherMot()}\n Tapez une lettre dans ce salon pour commencer.\n${etapes[0]}`);
+      envoyerMessageDiscord(` **Nouveau Cruxifier lancé !**\nMot mystère : \`\`\`\n${afficherMot()}\n\`\`\`\n Tapez une lettre dans ce salon pour commencer.\n${etapes[0]}`);
     }
 
     async function envoyerMessageDiscord(message) {
@@ -90,13 +91,13 @@
         const res = await fetch(webhookURL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: '✝ Cruxifier', content: message })
+          body: JSON.stringify({ username: ' Cruxifier', content: message })
         });
         if (!res.ok) {
-          document.getElementById('status').textContent = 'Erreur en envoyant le message.';
+          document.getElementById('status').textContent = ' Erreur en envoyant le message.';
         }
       } catch {
-        document.getElementById('status').textContent = 'Problème réseau.';
+        document.getElementById('status').textContent = ' Problème réseau.';
       }
     }
 
@@ -115,10 +116,10 @@
 
       if (motSecret.includes(l)) {
         lettresTrouvees.push(l);
-        await envoyerMessageDiscord(` Lettre \`${l}\` correcte !\nMot : ${afficherMot()}`);
+        await envoyerMessageDiscord(` Lettre \`${l}\` correcte !\nMot : \`\`\`\n${afficherMot()}\n\`\`\``);
       } else {
         lettresRatees.push(l);
-        await envoyerMessageDiscord(` Lettre \`${l}\` incorrecte !\nErreurs (${lettresRatees.length}/${maxErreurs}) : ${lettresRatees.join(', ')}\n${etapes[lettresRatees.length]}`);
+        await envoyerMessageDiscord(` Lettre \`${l}\` incorrecte !\nErreurs (${lettresRatees.length}/${maxErreurs}) : ${lettresRatees.join(', ')}\n${etapes[lettresRatees.length]}\nMot : \`\`\`\n${afficherMot()}\n\`\`\``);
       }
 
       if (!afficherMot().includes('_')) {
