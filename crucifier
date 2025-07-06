@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>✝️ Cruxifier</title>
+  <style>
+    body {
+      background-color: white;
+      color: black;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1, h2 {
+      color: #FFD700;
+      border-bottom: 3px solid #FFD700;
+      display: inline-block;
+      padding-bottom: 10px;
+    }
+
+    .gold-box {
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 30px;
+      display: inline-block;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 1.1em;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      width: 60%;
+    }
+
+    button {
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1em;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e6c200;
+    }
+
+    .lettre {
+      font-size: 1.5em;
+      margin: 0 5px;
+    }
+
+    .erreurs {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .progression {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    .victoire {
+      color: green;
+      font-weight: bold;
+    }
+
+    .defaite {
+      color: darkred;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>✝️ Cruxifier</h1>
+
+  <div class="gold-box">
+    <h2>Lancer une partie</h2>
+    <form id="form-mot">
+      <input type="text" id="mot-secret" placeholder="Mot mystère" required />
+      <button type="submit">Commencer</button>
+    </form>
+  </div>
+
+  <div class="gold-box" id="jeu" style="display:none;">
+    <h2>Devine le mot</h2>
+    <div id="affichage-mot" style="font-size: 2em; letter-spacing: 10px;"></div>
+    <input type="text" id="lettre" maxlength="1" placeholder="Lettre" style="margin-top:10px;" />
+    <button onclick="proposerLettre()">Envoyer</button>
+    <div class="erreurs" id="erreurs"></div>
+    <div class="progression" id="progression"></div>
+    <div id="fin" style="margin-top:15px;"></div>
+  </div>
+
+  <script>
+    let mot = "";
+    let lettresTrouvees = [];
+    let erreurs = [];
+    let maxErreurs = 6;
+
+    const etapesJesus = [
+      "🙏 Jésus commence son chemin.",
+      "🚶 Jésus marche dans le désert.",
+      "😓 Jésus transpire sous le soleil.",
+      "🪵 Jésus porte la croix.",
+      "🤕 Jésus tombe sous le poids.",
+      "🪢 Jésus est cloué sur la croix.",
+      "✝️ Jésus est crucifié."
+    ];
+
+    document.getElementById("form-mot").addEventListener("submit", function(e) {
+      e.preventDefault();
+      mot = document.getElementById("mot-secret").value.toLowerCase().trim();
+      if (mot.length < 2) return alert("Mot trop court.");
+      lettresTrouvees = Array(mot.length).fill("_");
+      erreurs = [];
+      document.getElementById("jeu").style.display = "block";
+      document.getElementById("form-mot").style.display = "none";
+      afficherMot();
+      afficherEtat();
+    });
+
+    function afficherMot() {
+      document.getElementById("affichage-mot").innerText = lettresTrouvees.join(" ");
+    }
+
+    function proposerLettre() {
+      const l = document.getElementById("lettre").value.toLowerCase();
+      document.getElementById("lettre").value = "";
+
+      if (!l.match(/[a-z]/i) || l.length !== 1) return;
+
+      if (lettresTrouvees.includes(l) || erreurs.includes(l)) return;
+
+      if (mot.includes(l)) {
+        for (let i = 0; i < mot.length; i++) {
+          if (mot[i] === l) lettresTrouvees[i] = l;
+        }
+      } else {
+        erreurs.push(l);
+      }
+
+      afficherMot();
+      afficherEtat();
+      verifierFin();
+    }
+
+    function afficherEtat() {
+      document.getElementById("erreurs").innerText = `Lettres incorrectes : ${erreurs.join(", ")}`;
+      document.getElementById("progression").innerText = etapesJesus[erreurs.length];
+    }
+
+    function verifierFin() {
+      if (!lettresTrouvees.includes("_")) {
+        document.getElementById("fin").innerHTML = `<div class="victoire">🎉 Bravo ! Tu as sauvé Jésus !</div>`;
+        document.getElementById("lettre").disabled = true;
+      } else if (erreurs.length >= maxErreurs) {
+        document.getElementById("fin").innerHTML = `<div class="defaite">💀 Jésus a été crucifié. Le mot était : <strong>${mot}</strong></div>`;
+        document.getElementById("lettre").disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
