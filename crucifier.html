@@ -2,55 +2,136 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Crucifier</title>
+  <title>Cruxifier Semi-Automatique</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* Reset simple */
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       background: white;
       color: black;
-      font-family: Georgia, serif;
-      text-align: center;
-      padding: 2em;
+      font-family: "Georgia", serif;
+      margin: 0;
+      padding: 2em 1em;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
+    
+    main {
+      width: 100%;
+      max-width: 480px;
+      border: 3px solid #DAA520;
+      border-radius: 12px;
+      padding: 2em 2.5em;
+      box-shadow: 0 0 10px rgb(218 165 32 / 0.5);
+      background: #fffdfa;
+    }
+    
     h1, h2 {
       color: #DAA520;
       border-bottom: 3px solid #DAA520;
-      display: inline-block;
-      padding-bottom: 0.3em;
       margin-bottom: 1em;
+      padding-bottom: 0.3em;
+      font-weight: 700;
     }
-    input, button {
-      font-size: 1.2em;
-      padding: 0.5em 1em;
-      margin: 0.5em;
+    
+    h1 {
+      font-size: 2.2rem;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 1.5em;
+      letter-spacing: 2px;
+    }
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75em 1em;
+      font-size: 1.1rem;
       border: 2px solid #DAA520;
       border-radius: 8px;
+      margin-bottom: 1em;
+      transition: border-color 0.3s ease;
+      font-family: inherit;
     }
+    input[type="text"]:focus {
+      border-color: #b8860b;
+      outline: none;
+      box-shadow: 0 0 8px #b8860b;
+    }
+    
     button {
-      background: #0000;
-      color: black;
+      width: 100%;
+      background-color: transparent;
+      border: 2px solid #DAA520;
+      border-radius: 8px;
+      padding: 0.8em 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #DAA520;
       cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-family: inherit;
+      user-select: none;
     }
-    button:hover {
-      background: #FAFAD2;
+    button:hover:not(:disabled) {
+      background-color: #FAFAD2;
+      color: black;
     }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     #status {
-      margin-top: 1em;
-      font-weight: bold;
+      margin-top: 1.5em;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #444;
+      min-height: 1.2em;
+      text-align: center;
+      word-break: break-word;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      main {
+        padding: 1.5em 1.5em;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+      }
+      input[type="text"], button {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1> Cruxifier Semi-Automatique</h1>
+  <main>
+    <h1> Cruxifier Semi-Automatique</h1>
 
-  <h2>1) Saisir le mot secret</h2>
-  <input type="text" id="mot" placeholder="Mot secret" />
-  <button onclick="lancerJeu()">Lancer le jeu</button>
+    <h2>1) Saisir le mot secret</h2>
+    <input type="text" id="mot" placeholder="Mot secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    <button id="startBtn" onclick="lancerJeu()">Lancer le jeu</button>
 
-  <h2>2) Entrer une lettre</h2>
-  <input type="text" id="lettre" maxlength="1" placeholder="Lettre" disabled />
-  <button onclick="verifierLettre()" disabled>Vérifier lettre</button>
+    <h2>2) Entrer une lettre</h2>
+    <input type="text" id="lettre" maxlength="1" placeholder="Lettre" disabled autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    <button id="checkBtn" onclick="verifierLettre()" disabled>Vérifier lettre</button>
 
-  <div id="status"></div>
+    <div id="status"></div>
+  </main>
 
   <script>
     let motSecret = '';
@@ -81,9 +162,11 @@
       lettresTrouvees = [];
       lettresRatees = [];
       document.getElementById('lettre').disabled = false;
-      document.querySelector('button[onclick="verifierLettre()"]').disabled = false;
+      document.getElementById('checkBtn').disabled = false;
       document.getElementById('status').textContent = '';
       envoyerMessageDiscord(` **Nouveau Cruxifier lancé !**\nMot mystère : \`\`\`\n${afficherMot()}\n\`\`\`\n Tapez une lettre dans ce salon pour commencer.\n${etapes[0]}`);
+      // focus sur la saisie lettre
+      document.getElementById('lettre').focus();
     }
 
     async function envoyerMessageDiscord(message) {
@@ -91,7 +174,7 @@
         const res = await fetch(webhookURL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: ' Cruxifier', content: message })
+          body: JSON.stringify({ username: '✝ Cruxifier', content: message })
         });
         if (!res.ok) {
           document.getElementById('status').textContent = ' Erreur en envoyant le message.';
@@ -129,11 +212,12 @@
         await envoyerMessageDiscord(` Jésus a été crucifié. Le mot était : **${motSecret}**.`);
         finJeu();
       }
+      lettreInput.focus();
     }
 
     function finJeu() {
       document.getElementById('lettre').disabled = true;
-      document.querySelector('button[onclick="verifierLettre()"]').disabled = true;
+      document.getElementById('checkBtn').disabled = true;
       document.getElementById('status').textContent = 'Jeu terminé. Rechargez la page pour recommencer.';
     }
   </script>
